@@ -516,14 +516,20 @@ Il tag ```<form>``` racchiude tutti gli elementi del modulo (è un elemento di t
 - ```method = {get|post}``` specifica il modo in cui i dati vengono inviati
 - ```enctype = content-type``` se il metodo è POST specifica il content type usato per la codifica (encoding) dei dati contenuti nel form
 
-#### Input
-Il tag più usato nei form.
+La maggior parte dei controlli viene definita mediante il tag ```<input>```
 
-##### Input text
+#### Input text
 È un campo per l’inserimento di testo su una sola riga
 
 **Attributi**:
 - ```name = text``` nome del controllo
 - ```value = text``` eventuale valore iniziale
 - ```size = n``` lunghezza del campo (numero di caratteri)
-- ```maxlength = n``` massima lunghezza del testo (numero di caratteri) 
+- ```maxlength = n``` massima lunghezza del testo (numero di caratteri)
+
+#### Input file
+Consente di fare l’upload di un file selezionandolo nel filesystem del client
+
+**Attributi**:
+- ```name = text``` specifica il nome del controllo
+- ```value = content-type``` lista di MIME types per l’upload
