@@ -482,4 +482,48 @@ bgcolor=```“#xxxxxx”```.
 #### Anchor
 In HTML le ancore, sia di origine che di destinazione, si esprimono utilizzando il tag \<a\>. Le **àncore di origine** sono caratterizzate da un attributo, denominato **href**, che contiene l’indirizzo di destinazione (è un URL). Le **àncore di destinazione** sono invece caratterizzate dall’attributo **name**.
 
-#### URL relativi e assoluti
+### URL relativi e assoluti
+Gli URL utilizzati nell’attributo HREF possono essere assoluti o relativi. Se sono relativi si procede alla «risoluzione» utilizzando come base quella del documento corrente (modificabile tramite tag ```<base>```).  
+
+URL corrente: www.disi.unibo.it/docs/page1.html   
+URL in href: page2.html  
+URL base: www.disi.unibo.it/docs/  
+URL assoluto: www.disi.unibo.it/docs/page2.html 
+
+### Link e HTTP
+1. L’URL definito dall’attributo HREF viene «risolto»
+2. Se è un URL HTTP, viene fatta una chiamata HTTP di tipo **GET** al server in cui si trova il documento
+3. La pagina viene caricata e visualizzata dal browser
+4. Se è stata definita anche la parte fragment (#xxxxxx) il browser si porta al punto della pagina specificato 
+
+### Immagini
+Il tag ```<img>``` consente di inserire immagini in un documento HTML.  
+
+**Attributi**:  
+- ```src = uri``` specifica l’indirizzo dell’immagine (required)
+- ```alt = text``` testo alternativo nel caso fosse impossibile visualizzare l’immagine
+- ```align = {bottom|middle|top|left|right}``` (deprecato in HTML 4.01) posizione dell’immagine rispetto al testo che la circonda
+- ```width,height = pixels``` larghezza e altezza dell’immagine in pixel
+- ```border = pixels``` (deprecato in HTML 4.01) spessore del bordo dell’immagine
+
+### Form
+Un form (modulo) è una sezione di documento HTML che contiene elementi di controllo che l’utente può utilizzare per inserire dati o in generale per interagire
+Il tag ```<form>``` racchiude tutti gli elementi del modulo (è un elemento di tipo blocco)
+
+**Attributi**:
+- ```action = uri ``` URI dell’agente che riceverà i dati del form
+- ```name = text``` specifica il nome del form
+- ```method = {get|post}``` specifica il modo in cui i dati vengono inviati
+- ```enctype = content-type``` se il metodo è POST specifica il content type usato per la codifica (encoding) dei dati contenuti nel form
+
+#### Input
+Il tag più usato nei form.
+
+##### Input text
+È un campo per l’inserimento di testo su una sola riga
+
+**Attributi**:
+- ```name = text``` nome del controllo
+- ```value = text``` eventuale valore iniziale
+- ```size = n``` lunghezza del campo (numero di caratteri)
+- ```maxlength = n``` massima lunghezza del testo (numero di caratteri) 
