@@ -28,9 +28,9 @@ sintassi comune per rappresentare relazioni gerarchiche in uno spazio di nomi:
 ```xml
 <scheme>://<authority><path>?<query>
 ```
-A parte *\<scheme\>*, le altre parti possono talora essere
+A parte ```<scheme>```, le altre parti possono talora essere
 omesse, come nei casi in cui non è inclusa la componente
-*\<authority\>* o non è inclusa la componente *\<query\>*.
+```<authority>``` o non è inclusa la componente ```<query>```.
 
 ## URN e URL
 Esistono due specializzazioni del concetto di URI:
@@ -56,12 +56,12 @@ alla risorsa, specifica il protocollo necessario per il trasferimento della riso
 ```
 
 ### Componenti URL
--   **\<protocol\>**: Descrive il protocollo da utilizzare per l'accesso al server (HTTP, HTTPS, FTP, MMS, ...)
--   **\<username\>:\<password\>@**: credenziali per l'autenticazione 
--   **\<host\>**: indirizzo server su cui risiede la risorsa. Può essere un indirizzo IP logico o fisico.
--   **\<port\>**: definisce la porta da utilizzare (TCP come protocollo di trasporto per HTTP, che vedremo è a livello applicativo) . Se non viene indicata, si usa porta standard per il protocollo specificato (per HTTP è 80).
--   **\<path\>**: percorso (pathname) che identifica la risorsa nel file system del server. Se manca, tipicamente si accede alla risorsa predefinita (es. home page).
--   **\<query\>**: una stringa di caratteri che consente di passare al server uno o più parametri . Di solito ha questo formato: *parametro1=valore&parametro2=valore2...*
+-   ```<protocol>```: Descrive il protocollo da utilizzare per l'accesso al server (HTTP, HTTPS, FTP, MMS, ...)
+-   ```<username\>:\<password\>@```  : credenziali per l'autenticazione 
+-   ```<host>``` : indirizzo server su cui risiede la risorsa. Può essere un indirizzo IP logico o fisico.
+-   ```<port>``` : definisce la porta da utilizzare (TCP come protocollo di trasporto per HTTP, che vedremo è a livello applicativo) . Se non viene indicata, si usa porta standard per il protocollo specificato (per HTTP è 80).
+-   ```<path>``` : percorso (pathname) che identifica la risorsa nel file system del server. Se manca, tipicamente si accede alla risorsa predefinita (es. home page).
+-   ```<query>``` : una stringa di caratteri che consente di passare al server uno o più parametri . Di solito ha questo formato: ```parametro1=valore&parametro2=valore2...```
 
 ## URI opache e URI generiche
 -   >**URI opaca**: non è soggetta a ulteriori operazioni di
@@ -533,3 +533,4 @@ Consente di fare l’upload di un file selezionandolo nel filesystem del client
 **Attributi**:
 - ```name = text``` specifica il nome del controllo
 - ```value = content-type``` lista di MIME types per l’upload
+
