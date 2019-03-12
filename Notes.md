@@ -221,3 +221,265 @@ GET /private/index.html HTTP/1.1
 Host: localhost
 Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ== (codificato in Base64)
 ```
+
+### Autenticazione Form
+Normalmente si usa il metodo POST. Analoghe considerazioni a quelle fatte per HTTP Basic.
+
+## Sicurezza 
+La sicurezza del canale di trasporto è affidata a:
+-   **SSL**: **Secure Socket Layer**
+-   **TLS**: **Transport Layer Security**
+
+Viene posto un livello che si occupa della gestione di confidenzialità, autenticità ed integrità della comunicazione fra HTTP e TCP. 
+
+Basato su crittografia a chiave pubblica:
+-   Private key + Public key
+-   Certificato (solitamente usato per autenticare il server)
+
+## Architetture più distribuite e articolate per il Web
+>**Proxy**: Programma applicativo in grado di agire sia come Client che come Server al fine di effettuare richieste per conto di altri Clienti. Le Request vengono processate internamente oppure vengono ridirezionate al Server. Un proxy deve interpretare e, se necessario, riscrivere le Request prima di inoltrarle.
+
+>**Gateway**: Server che agisce da intermediario per altri Server. Al contrario dei proxy, il gateway riceve le request come se fosse il server originale e Client non è in grado di identificare che Response proviene da un gateway. Detto anche *reverse proxy* o *server-side proxy*.
+
+>**Tunnel**: Programma applicativo che agisce come “blind relay” tra due connessioni. Una volta attivo (in gergo “salito”) non partecipa alla comunicazione HTTP.
+
+## Caching Distribuito
+Memorizzare copie temporanee di documenti Web (es. pagine HTML, immagini) al fine di ridurre l’uso della banda ed il carico sul server. Una Web cache memorizza i documenti che la attraversano. L’obiettivo è usare i documenti in cache per le successive richieste qualora alcune condizioni siano verificate.
+
+Tipi di Web cache:
+-   **User Agent Cache**
+-   **Proxy Cache**
+
+### User Agent Cache
+Lo user agent (tipicamente il browser) mantiene una cache delle pagine visitate dall’utente. L’uso delle user agent cache era molto importante in passato quando gli utenti non avevano accesso a connessioni di rete a banda larga. Questo modello di caching è comunque ora molto rilevante per i dispositivi mobili al fine di consentire agli utenti di lavorare con connettività intermittente ma anche per ridurre latenze dovute a caricamento di elementi statici (icone, sfondi, ...).
+
+### Proxy Cache
+#### Forward Proxy Cache
+-   Servono per ridurre le necessità di banda
+-   Il proxy intercetta il traffico e mette in cache le pagine.
+-   Successive richieste non provocano lo scaricamento di
+ulteriori copie delle pagine al server.
+
+#### Reverse (server-side) Proxy Cache
+-   Gateway cache
+-   Operano per conto del server e consentono di ridurre il carico computazionale delle macchine.
+-   I client non sono in grado di capire se le pagine arrivano dal server o dal gateway.
+-   Internet Caching Protocol per il coordinamento fra diverse cache. Base per content delivery network.
+
+### HTTP e Cache
+HTTP definisce vari meccanismi che possono avere effetti collaterali *positivi* per la gestione *«lazy»* dell’aggiornamento cache:
+-   >**Freshness**: controllata lato server da Expires response header e lato cliente da direttiva Cache-Control: max-age
+-   >**Validation**: può essere usato per controllare se un elemento in cache è ancora corretto, corretto ad es. nel caso in cui sia in cache da molto tempo (ad es. tramite richieste HEAD).
+-   >**Invalidation**: è normalmente un effetto collaterale di altre request che hanno attraversato la cache. Se per esempio viene mandata una POST, una PUT o una DELETE a un URL il contenuto della cache deve essere e viene automaticamente invalidato.
+
+# HTML
+>HTML è l’acronimo di HyperText Markup Language. È il linguaggio utilizzato per descrivere le pagine che costituiscono i nodi dell’ipertesto. È un linguaggio di codifica del testo del tipo a marcatori (markup).
+
+>Un linguaggio di codifica del testo è un formalismo con il quale è possibile rappresentare un documento su supporto digitale in modo che sia trattabile dall’elaboratore in quanto testo.
+
+I formalismi più elementari per la codifica informatica del testo sono i sistemi di codifica dei caratteri. Per codificare i caratteri si stabilisce una **corrispondenza biunivoca** tra gli elementi di una collezione ordinata di **caratteri** e un insieme di **codici numerici**. Si ottiene così un **coded character set** che di solito si rappresenta in forma di tabella ( **code page** o **code table** ). Per ciascun coded character set si definisce una codifica dei caratteri (**character encoding**). La codifica mappa una o più sequenze di byte (8 bit) a un numero intero che rappresenta un carattere in un determinato coded character set. I più noti sono *ASCII, ANSI, UTF-8*.
+
+## Linguaggi a marcatori
+>Un testo è un oggetto complesso caratterizzato da molteplici livelli strutturali che non si limitano alla sequenza di simboli del sistema di scrittura. 
+
+>Si parla propriamente di **linguaggio di codifica testuale** solo in riferimento ai linguaggi che consentono la rappresentazione o il controllo di uno o più livelli strutturali di un documento testuale. Tali linguaggi vengono correntemente denominati linguaggi a marcatori ( mark-up languages ).
+
+### Caratteristiche
+Un linguaggio di mark-up è composto da:
+-   Un insieme di istruzioni dette **tag** o **mark-up** (marcatori) che rappresentano le caratteristiche del documento testuale. 
+-   Una **grammatica** che regola l’uso del mark-up.
+-   Una **semantica** che definisce il dominio di applicazione e la funzione del mark-up.
+   
+I marcatori vengono inseriti direttamente all’interno  del testo cui viene applicato. Ogni tag è a sua volta costituito da una sequenza di caratteri, preceduta da caratteri speciali che la delimitano e permettono all’elaboratore di distinguere il testo dai marcatori.
+
+Tradizionalmente i linguaggi di mark-up sono stati divisi in due tipologie: 
+-   Linguaggi **procedurali** o **imperativi**: il mark-up specifica quali operazioni un dato programma deve compiere su un documento elettronico per ottenere una determinata presentazione (Tex, LateX).
+-   Linguaggi **dichiarativi** o **descrittivi**: il mark-up descrive la struttura di un documento testuale identificandone i componenti (SGML, HTML, XML). In particolare viene descritta la struttura editoriale, costituita da componenti (content object) organizzati in modo gerarchico.
+
+### SGML
+>**SGML** = Standard Generalized Markup Language. È uno standard ISO (8879) pubblicato nel 1986.
+
+Un documento SGML comprende oggetti di varie classi chiamati elementi capitoli, titoli, riferimenti, oggetti grafici, etc. SGML identifica gli estremi degli elementi tramite tag iniziali e tag finali. **Non contiene sequenze di istruzioni di formattazione**. Gli elementi sono organizzati in una gerarchia.
+
+### HTML e SGML
+>HTML è un’applicazione SGML, ovvero un linguaggio per  a rappresentazione di un tipo di documento SGML. Oltre a descrivere il contenuto, HTML associa anche significati grafici agli elementi che definisce! Istruzioni più o meno precise su come rendere graficamente gli elementi che definisce.
+
+## Tag HTML
+I tag HTML sono usati per definire il mark-up di elementi HTML. Sono preceduti e seguiti rispettivamente da due caratteri “<“ e “>”. Sono normalmente accoppiati; un esempio è dato da: \<p\> e \</p\>, detti rispettivamente start tag ed end tag. Il testo tra start tag ed end tag è detto contenuto dell’elemento. Un documento HTML contiene quindi elementi composti da testo semplice delimitato da tag. 
+
+HTML rispetta in maniera poco rigorosa le specifiche SGML, esistono però delle buone pratiche che è bene rispettare e che diventano un obbligo in una versione più rigorosa del linguaggio chiamata XHTML.
+
+>**Entity**: HTML definisce un certo numero di entità (entity) per rappresentare i caratteri speciali senza incorrere in problemi di codifica: Caratteri riservati a HTML (<, >, &, “, ecc.). Caratteri non presenti nell’ASCII a 7 bit.
+
+>**Attributi**: Un elemento può essere dettagliato mediante attributi. Gli attributi sono coppie “nome = valore” contenute nello start tag con una sintassi di questo tipo:
+```html
+<tag attrib1=‘valore1’ attrib2=‘valore2’>
+```
+
+>**Tipi MIME**: Lo standard MIME ( Multipurpose Internet Mail Extensions ) è nato originariamente per poter allegare data file (audio, video, immagini, ...) ai messaggi di posta elettronica, oggi noto anche come **Internet Media Type**, rappresenta il tipo di contenuto di un messaggio. Classifica i tipi di contenuto sulla base di una **logica a due livelli** ed è largamente utilizzata in ambito di HTML e delle tecnologie web in generale. Espresso con questa sintassi:
+```
+tipo/sottotipo
+text/plain: testo semplice
+text/html: testo HTML
+```
+
+## DTD (Document Type Definition)
+>Il primo elemento di un documento HTML è la definizione del tipo di documento (**DTD**): Serve al browser per identificare le regole di interpretazione e visualizzazione da applicare al documento.
+
+Esempio: 
+```h
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01
+Transitional//EN" http://www.w3.org/TR/html4/loose.dtd>
+```
+
+È costituita da diverse parti:
+-   **HTML** il tipo di linguaggio utilizzato è l'HTML
+-   **PUBLIC** il documento è pubblico
+- le specifiche non sono registrate all'ISO (altrimenti +)
+- **W3C** ente che ha rilasciato le specifiche
+- **DTD HTML 4.01 Transitional**: versione di HTML
+- **EN** la lingua con cui è scritta il DTD è l'inglese
+- **http://...** URL delle specifiche
+
+## Header
+È identificato dal tag \<head\>. Contiene elementi non visualizzati dal browser (informazioni di servizio):
+-   **\<title\>** titolo della pagina (viene mostrato nella testata della finestra principale del browser)
+-   **\<meta\>** metadati informazioni utili ad applicazioni esterne (es. motori di ricerca) o al browser (es. lingua,codifica dei caratteri utile per la visualizzazione di alfabeti non latini)
+-   **\<base\>** definisce come vengono gestiti i riferimenti relativi nei link
+-   **\<link\>** collegamenti verso file esterni: CSS, script, icone visualizzabili nella barra degli indirizzi del browser
+-   **\<script\>** codice eseguibile utilizzato dal documento
+-   **\<style\>** informazioni di stile (CSS locali)
+
+### Elementi <meta>
+Gli elementi di tipo \<meta\> sono caratterizzati da una
+serie di attributi. Esistono due tipi di elementi meta, distinguibili dal primo attributo: **http-equiv** o **name**:
+-   >Gli elementi di tipo **http-equiv** danno informazioni al browser su come gestire la pagina. Hanno una struttura di questo tipo: 
+```html
+<meta http-equiv=nome content=valore>
+```
+
+-   >Gli elementi di tipo **name** forniscono informazioni utili ma non critiche. Hanno una struttura di questo tipo:
+```html 
+<meta name=nome content=valore>
+```
+
+#### \<meta\> http-equiv
+-   **refresh**: indica che la pagina deve essere ricaricata dopo un numero di secondi definito dall’attributo content:
+```html
+<meta http-equiv=refresh content=45> 
+```
+-   **expires**: stabilisce una data scadenza (fine validità) per il documento.
+```html
+<meta http-equiv=expires content="Tue, 20 Aug 1996 14:25:27 GMT">
+```
+-   **content type**: definisce il tipo di dati contenuto nella pagina (di solito il tipo MIME text/html):
+```html
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+```
+
+#### \<meta\> name
+-   **author**: autore della pagina: 
+```html
+<meta name=author content=‘John Smith’>
+```
+-   **description**: descrizione della pagina
+```html
+<meta name=description content=“Home page UNIBO">
+```
+-   **copyright**: indica che la pagina è protetta da un diritto d’autore
+```html
+<meta name=copyright content="Copyright 2009, John Smith">
+```
+-   **keywords**: lista di parole chiave separate da virgole, usate dai motori di ricerca
+```html
+<meta name=keywords lang="en" content="computer documentation, computers, computer help">
+```
+-   **date**: data di creazione del documento
+```html
+<meta name="date" content="2008-05-07T09:10:56+00:00">
+```
+
+## Body
+>Il tag <body> delimita il corpo del documento. Contiene la parte che viene mostrata dal browser.
+
+Ammette diversi attributi tra cui:
+-   **background** = uri. Definisce l’URI di una immagine da usare come sfondo per la pagina.
+-   **text** = color. Definisce il colore del testo
+-   **bgcolor** = color. In alternativa a background definisce il colore di sfondo della pagina
+-   **lang** = linguaggio definisce il linguaggio utilizzato nella pagina *es. language="it"*.
+
+### Tipi di elementi del body
+-   **Intestazioni**: titoli organizzati in gerarchia
+-   **Strutture di testo**: paragrafi, testo indentato, ecc.
+-   **Aspetto del testo**: grassetto, corsivo, ecc.
+-   **Elenchi e liste**: numerati, puntati
+-   **Tabelle**
+-   **Form** (moduli elettronici): campi di inserimento, checkbox e radio button, menu a tendina, bottoni, ecc.
+-   **Collegamenti ipertestuali** e ancore
+-   **Immagini e contenuti multimediali** (audio, video, animazioni, ecc.)
+-   **Contenuti interattivi**: script, applicazioni esterne.
+
+### Elementi blocco, elementi inline e liste
+Dal punto di vista del layout della pagina gli elementi HTML si dividono in 3 grandi categorie: 
+1.  **Elementi “block-level”**: costituiscono un blocco attorno a sé, e di conseguenza «vanno a capo» (paragrafi, tabelle, form...)
+2.  **Elementi “inline”**: non vanno a capo e possono essere integrati nel testo (link, immagini,...)
+3.  **Liste**: numerate, puntate 
+  
+>**Regole di composizione**: Un elemento block-level può contenere altri elementi dello stesso tipo o di tipo inline. Un elemento inline può contenere solo altri elementi inline.
+
+### Elementi rimpiazzati e non rimpiazzati
+>Gli elementi rimpiazzati sono quelli di cui il browser conosce le dimensioni intrinseche. Sono quelli in cui altezza e larghezza sono definite dall'elemento stesso e non da ciò che lo circonda. L'esempio più tipico di elemento rimpiazzato è \<img\> o \<input\>.
+
+Tutti gli altri elementi sono in genere considerati non rimpiazzati.
+
+### Heading e paragrafi
+>La "h" sta per **"heading"**, cioè titolo e sono previste 6 grandezze; I tag \<h1\>,\<h2\> ... \<h6\> servono per definire dei titoli di importanza decrescente (\<h1\> è il più importante). 
+
+>Il **paragrafo** è l'unità di base entro cui suddividere un testo: è un elemento di tipo blocco. Il tag \<p\> lascia una riga vuota prima della sua
+apertura e dopo la sua chiusura. È possibile definire l’allineamento di un paragrafo mediante l’attributo align. (*left, center, right, justify*).
+
+>Se al posto di \<p\> si usa il **tag \<div\>** il blocco di testo va a capo, ma - a differenza del paragrafo - non lascia spazi prima e dopo la sua apertura. È l'elemento di tipo blocco per eccellenza.
+
+>Lo **\<span\>** è un contenitore generico che può essere annidato (ad esempio) all'interno dei **\<div\>**. È un elemento inline, e quindi non va a capo ma continua sulla stessa linea del tag che lo include.
+
+>Il **tag \<hr\>** serve ad inserire una riga di separazione. Esempio: ```<hr noshade size="5" width="50%" align="center">```
+
+### Gli stili del Testo
+Nella terminologia tipografica lo "stile di un testo" indica le possibili varianti di forma di un carattere: tondo (normale), neretto (grassetto), corsivo. HTML consente di definire lo stile di un frammento di testo, combinando fra loro anche più stili. I tag che svolgono questa funziona vengono normalmente suddivisi in fisici e logici:
+-   >**Tag fisici**: definiscono lo stile del carattere in termini grafici indipendentemente dalla funzione del testo nel documento. Ad esempio: \<i\>...\</i\> = Corsivo; \<b\>...\</b\> = Grassetto...
+-   >**Tag logici**: forniscono informazioni sul ruolo svolto dal contenuto, e in base a questo adottano uno stile grafico. Ad esempio: \<code>/\<pre> Codice: usualmente monospace; \<blockquote> Blocco di citazione.
+
+>Il **tag \<font\>** permette di formattare il testo, definendo dimensioni, colore, tipo di carattere.
+
+### Liste ordinate e non ordinate
+>Il tag \<ul\> (**unordered list**) permette di definire liste non ordinate (puntate). Gli elementi della lista vengono definiti mediante il tag \<li\> (**list item**).
+
+>Il tag \<ol\> (**ordered list**) permette di definire liste ordinate (numerati). Gli elementi vengono definiti mediante il tag \<li\>.
+
+>Il tag \<dl\> (**definition list**) permette di definire liste di definizione. Sono liste costituite alternativamente da termini (tag \<dt\>) e definizioni (tag \<dd\>).
+
+### Tabelle
+Il tag \<table\> racchiude la tabella. **Attributi**:
+-   ```align = “{left|center|right}”``` allineamento della tabella rispetto alla pagina;
+-   ```width=“n|n%”``` larghezza della tabella (anche in percentuale rispetto alla pagina);
+-   ```bgcolor=“#xxxxxx”``` colore di sfondo della tabella;
+-   ```border=“n”``` spessore dei bordi della tabella (0 = tabella senza bordi);
+-   ```cellspacing, cellpadding```
+
+#### Righe
+**\<tr\>** è il tag che racchiude ciascuna riga della tabella. Attributi: align = ```“{left|center|right|justify}”```. 
+valign = ```“{top|middle|bottom|baseline}”```.
+bgcolor=```“#xxxxxx”```.
+
+#### Testate e Celle
+\<th\> e \<td\> sono i tag che racchiudono le celle (stessi attributi di tr):
+-   **\<th\>** serve per le celle della testata.
+-   **\<td\>** serve per le celle del contenuto.
+
+### Link Ipertestuali
+>Il link è il costrutto di base di un ipertesto. Caratterizza HTML come linguaggio a marcatori per la descrizione di ipertesti. È una connessione fra una risorsa Web ed un’altra. Un link è costituito da due estremi - detti anchor. L’àncora di origine (source anchor) è un elemento contenuto nella pagina di partenza. L’àncora di destinazione (destination anchor) è una qualsiasi risorsa web che si ottiene «visitando» il link.
+
+#### Anchor
+In HTML le ancore, sia di origine che di destinazione, si esprimono utilizzando il tag \<a\>. Le **àncore di origine** sono caratterizzate da un attributo, denominato **href**, che contiene l’indirizzo di destinazione (è un URL). Le **àncore di destinazione** sono invece caratterizzate dall’attributo **name**.
+
+#### URL relativi e assoluti
