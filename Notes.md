@@ -28,9 +28,9 @@ sintassi comune per rappresentare relazioni gerarchiche in uno spazio di nomi:
 ```xml
 <scheme>://<authority><path>?<query>
 ```
-A parte ```<scheme>```, le altre parti possono talora essere
+A parte `<scheme>`, le altre parti possono talora essere
 omesse, come nei casi in cui non è inclusa la componente
-```<authority>``` o non è inclusa la componente ```<query>```.
+`<authority>` o non è inclusa la componente `<query>`.
 
 ## URN e URL
 Esistono due specializzazioni del concetto di URI:
@@ -305,7 +305,7 @@ Un documento SGML comprende oggetti di varie classi chiamati elementi capitoli, 
 >HTML è un’applicazione SGML, ovvero un linguaggio per  a rappresentazione di un tipo di documento SGML. Oltre a descrivere il contenuto, HTML associa anche significati grafici agli elementi che definisce! Istruzioni più o meno precise su come rendere graficamente gli elementi che definisce.
 
 ## Tag HTML
-I tag HTML sono usati per definire il mark-up di elementi HTML. Sono preceduti e seguiti rispettivamente da due caratteri “<“ e “>”. Sono normalmente accoppiati; un esempio è dato da: \<p\> e \</p\>, detti rispettivamente start tag ed end tag. Il testo tra start tag ed end tag è detto contenuto dell’elemento. Un documento HTML contiene quindi elementi composti da testo semplice delimitato da tag. 
+I tag HTML sono usati per definire il mark-up di elementi HTML. Sono preceduti e seguiti rispettivamente da due caratteri “<“ e “>”. Sono normalmente accoppiati; un esempio è dato da: `<p>` e `</p>`, detti rispettivamente start tag ed end tag. Il testo tra start tag ed end tag è detto contenuto dell’elemento. Un documento HTML contiene quindi elementi composti da testo semplice delimitato da tag. 
 
 HTML rispetta in maniera poco rigorosa le specifiche SGML, esistono però delle buone pratiche che è bene rispettare e che diventano un obbligo in una versione più rigorosa del linguaggio chiamata XHTML.
 
@@ -331,8 +331,9 @@ Esempio:
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01
 Transitional//EN" http://www.w3.org/TR/html4/loose.dtd>
 ```
+<details>
+<summary>È costituita da diverse parti: </summary>
 
-È costituita da diverse parti:
 -   **HTML** il tipo di linguaggio utilizzato è l'HTML
 -   **PUBLIC** il documento è pubblico
 - le specifiche non sono registrate all'ISO (altrimenti +)
@@ -340,15 +341,21 @@ Transitional//EN" http://www.w3.org/TR/html4/loose.dtd>
 - **DTD HTML 4.01 Transitional**: versione di HTML
 - **EN** la lingua con cui è scritta il DTD è l'inglese
 - **http://...** URL delle specifiche
+</details>
 
 ## Header
-È identificato dal tag \<head\>. Contiene elementi non visualizzati dal browser (informazioni di servizio):
--   **\<title\>** titolo della pagina (viene mostrato nella testata della finestra principale del browser)
--   **\<meta\>** metadati informazioni utili ad applicazioni esterne (es. motori di ricerca) o al browser (es. lingua,codifica dei caratteri utile per la visualizzazione di alfabeti non latini)
--   **\<base\>** definisce come vengono gestiti i riferimenti relativi nei link
--   **\<link\>** collegamenti verso file esterni: CSS, script, icone visualizzabili nella barra degli indirizzi del browser
--   **\<script\>** codice eseguibile utilizzato dal documento
--   **\<style\>** informazioni di stile (CSS locali)
+È identificato dal tag `<head>`. 
+
+<details>
+<summary> Contiene elementi non visualizzati dal browser (informazioni di servizio): </summary>
+
+-   **`<title>`** titolo della pagina (viene mostrato nella testata della finestra principale del browser)
+-   **`<meta>`** metadati informazioni utili ad applicazioni esterne (es. motori di ricerca) o al browser (es. lingua,codifica dei caratteri utile per la visualizzazione di alfabeti non latini)
+-   **`<base>`** definisce come vengono gestiti i riferimenti relativi nei link
+-   **`<link>`** collegamenti verso file esterni: CSS, script, icone visualizzabili nella barra degli indirizzi del browser
+-   **`<script>`** codice eseguibile utilizzato dal documento
+-   **`<style>`** informazioni di stile (CSS locali)
+</details>
 
 ### Elementi <meta>
 Gli elementi di tipo \<meta\> sono caratterizzati da una
@@ -363,7 +370,10 @@ serie di attributi. Esistono due tipi di elementi meta, distinguibili dal primo 
 <meta name=nome content=valore>
 ```
 
-#### \<meta\> http-equiv
+#### ```<meta>``` http-equiv
+<details>
+<summary> Dettagli: </summary>
+
 -   **refresh**: indica che la pagina deve essere ricaricata dopo un numero di secondi definito dall’attributo content:
 ```html
 <meta http-equiv=refresh content=45> 
@@ -376,8 +386,12 @@ serie di attributi. Esistono due tipi di elementi meta, distinguibili dal primo 
 ```html
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 ```
+</details>
 
-#### \<meta\> name
+#### ```<meta>``` name
+<details>
+<summary> Dettagli: </summary>
+
 -   **author**: autore della pagina: 
 ```html
 <meta name=author content=‘John Smith’>
@@ -398,15 +412,20 @@ serie di attributi. Esistono due tipi di elementi meta, distinguibili dal primo 
 ```html
 <meta name="date" content="2008-05-07T09:10:56+00:00">
 ```
+</details>
 
 ## Body
 >Il tag <body> delimita il corpo del documento. Contiene la parte che viene mostrata dal browser.
 
-Ammette diversi attributi tra cui:
+</details>
+<details>
+<summary>Ammette diversi attributi tra cui:</summary>
+
 -   **background** = uri. Definisce l’URI di una immagine da usare come sfondo per la pagina.
 -   **text** = color. Definisce il colore del testo
 -   **bgcolor** = color. In alternativa a background definisce il colore di sfondo della pagina
 -   **lang** = linguaggio definisce il linguaggio utilizzato nella pagina *es. language="it"*.
+</details>
 
 ### Tipi di elementi del body
 -   **Intestazioni**: titoli organizzati in gerarchia
@@ -428,53 +447,63 @@ Dal punto di vista del layout della pagina gli elementi HTML si dividono in 3 gr
 >**Regole di composizione**: Un elemento block-level può contenere altri elementi dello stesso tipo o di tipo inline. Un elemento inline può contenere solo altri elementi inline.
 
 ### Elementi rimpiazzati e non rimpiazzati
->Gli elementi rimpiazzati sono quelli di cui il browser conosce le dimensioni intrinseche. Sono quelli in cui altezza e larghezza sono definite dall'elemento stesso e non da ciò che lo circonda. L'esempio più tipico di elemento rimpiazzato è \<img\> o \<input\>.
+>Gli elementi rimpiazzati sono quelli di cui il browser conosce le dimensioni intrinseche. Sono quelli in cui altezza e larghezza sono definite dall'elemento stesso e non da ciò che lo circonda. L'esempio più tipico di elemento rimpiazzato è `<img>` o `<input>`.
 
 Tutti gli altri elementi sono in genere considerati non rimpiazzati.
 
 ### Heading e paragrafi
->La "h" sta per **"heading"**, cioè titolo e sono previste 6 grandezze; I tag \<h1\>,\<h2\> ... \<h6\> servono per definire dei titoli di importanza decrescente (\<h1\> è il più importante). 
+>La "h" sta per **"heading"**, cioè titolo e sono previste 6 grandezze; I tag `<h1>`,`<h2>` ... `<h6>` servono per definire dei titoli di importanza decrescente (`<h1>` è il più importante). 
 
->Il **paragrafo** è l'unità di base entro cui suddividere un testo: è un elemento di tipo blocco. Il tag \<p\> lascia una riga vuota prima della sua
+>Il **paragrafo** è l'unità di base entro cui suddividere un testo: è un elemento di tipo blocco. Il tag `<p>` lascia una riga vuota prima della sua
 apertura e dopo la sua chiusura. È possibile definire l’allineamento di un paragrafo mediante l’attributo align. (*left, center, right, justify*).
 
->Se al posto di \<p\> si usa il **tag \<div\>** il blocco di testo va a capo, ma - a differenza del paragrafo - non lascia spazi prima e dopo la sua apertura. È l'elemento di tipo blocco per eccellenza.
+>Se al posto di `<p>` si usa il **tag `<div>`** il blocco di testo va a capo, ma - a differenza del paragrafo - non lascia spazi prima e dopo la sua apertura. È l'elemento di tipo blocco per eccellenza.
 
->Lo **\<span\>** è un contenitore generico che può essere annidato (ad esempio) all'interno dei **\<div\>**. È un elemento inline, e quindi non va a capo ma continua sulla stessa linea del tag che lo include.
+>Lo **`<span>`** è un contenitore generico che può essere annidato (ad esempio) all'interno dei **`<div>`**. È un elemento inline, e quindi non va a capo ma continua sulla stessa linea del tag che lo include.
 
->Il **tag \<hr\>** serve ad inserire una riga di separazione. Esempio: ```<hr noshade size="5" width="50%" align="center">```
+>Il **tag `<hr>`** serve ad inserire una riga di separazione. Esempio: `<hr noshade size="5" width="50%" align="center">`
 
 ### Gli stili del Testo
 Nella terminologia tipografica lo "stile di un testo" indica le possibili varianti di forma di un carattere: tondo (normale), neretto (grassetto), corsivo. HTML consente di definire lo stile di un frammento di testo, combinando fra loro anche più stili. I tag che svolgono questa funziona vengono normalmente suddivisi in fisici e logici:
--   >**Tag fisici**: definiscono lo stile del carattere in termini grafici indipendentemente dalla funzione del testo nel documento. Ad esempio: \<i\>...\</i\> = Corsivo; \<b\>...\</b\> = Grassetto...
--   >**Tag logici**: forniscono informazioni sul ruolo svolto dal contenuto, e in base a questo adottano uno stile grafico. Ad esempio: \<code>/\<pre> Codice: usualmente monospace; \<blockquote> Blocco di citazione.
+-   >**Tag fisici**: definiscono lo stile del carattere in termini grafici indipendentemente dalla funzione del testo nel documento. Ad esempio: `<i>`...`</i>` = Corsivo; `<b>`...`</b>` = Grassetto...
+-   >**Tag logici**: forniscono informazioni sul ruolo svolto dal contenuto, e in base a questo adottano uno stile grafico. Ad esempio: `<code>` `<pre>` Codice: usualmente monospace; `<blockquote>` Blocco di citazione.
 
->Il **tag \<font\>** permette di formattare il testo, definendo dimensioni, colore, tipo di carattere.
+>Il **tag `<font>`** permette di formattare il testo, definendo dimensioni, colore, tipo di carattere.
 
 ### Liste ordinate e non ordinate
->Il tag \<ul\> (**unordered list**) permette di definire liste non ordinate (puntate). Gli elementi della lista vengono definiti mediante il tag \<li\> (**list item**).
+>Il tag **`<ul>`** (**unordered list**) permette di definire liste non ordinate (puntate). Gli elementi della lista vengono definiti mediante il tag **`<li>`** (**list item**).
 
->Il tag \<ol\> (**ordered list**) permette di definire liste ordinate (numerati). Gli elementi vengono definiti mediante il tag \<li\>.
+>Il tag **`<ol>`** (**ordered list**) permette di definire liste ordinate (numerati). Gli elementi vengono definiti mediante il tag **`<li>`**.
 
->Il tag \<dl\> (**definition list**) permette di definire liste di definizione. Sono liste costituite alternativamente da termini (tag \<dt\>) e definizioni (tag \<dd\>).
+>Il tag **`<dl>`** (**definition list**) permette di definire liste di definizione. Sono liste costituite alternativamente da termini (tag **`<dt>`**) e definizioni (tag **`<dd>`**).
 
 ### Tabelle
-Il tag \<table\> racchiude la tabella. **Attributi**:
+Il tag **`<table>`** racchiude la tabella. 
+<details>
+<summary>Attributi:</summary>
+
 -   ```align = “{left|center|right}”``` allineamento della tabella rispetto alla pagina;
 -   ```width=“n|n%”``` larghezza della tabella (anche in percentuale rispetto alla pagina);
 -   ```bgcolor=“#xxxxxx”``` colore di sfondo della tabella;
 -   ```border=“n”``` spessore dei bordi della tabella (0 = tabella senza bordi);
 -   ```cellspacing, cellpadding```
+</details>
 
-#### Righe
-**\<tr\>** è il tag che racchiude ciascuna riga della tabella. Attributi: align = ```“{left|center|right|justify}”```. 
+<details>
+<summary>Righe: </summary>
+
+**`<tr>`** è il tag che racchiude ciascuna riga della tabella. Attributi: align = ```“{left|center|right|justify}”```. 
 valign = ```“{top|middle|bottom|baseline}”```.
 bgcolor=```“#xxxxxx”```.
+</details>
 
-#### Testate e Celle
-\<th\> e \<td\> sono i tag che racchiudono le celle (stessi attributi di tr):
--   **\<th\>** serve per le celle della testata.
--   **\<td\>** serve per le celle del contenuto.
+<details>
+<summary>Testate e celle: </summary>
+
+**`<th>`** e **`<td>`** sono i tag che racchiudono le celle (stessi attributi di tr):
+-   **`<th>`** serve per le celle della testata.
+-   **`<td>`** serve per le celle del contenuto.
+</details>
 
 ### Link Ipertestuali
 >Il link è il costrutto di base di un ipertesto. Caratterizza HTML come linguaggio a marcatori per la descrizione di ipertesti. È una connessione fra una risorsa Web ed un’altra. Un link è costituito da due estremi - detti anchor. L’àncora di origine (source anchor) è un elemento contenuto nella pagina di partenza. L’àncora di destinazione (destination anchor) è una qualsiasi risorsa web che si ottiene «visitando» il link.
@@ -497,40 +526,51 @@ URL assoluto: www.disi.unibo.it/docs/page2.html
 4. Se è stata definita anche la parte fragment (#xxxxxx) il browser si porta al punto della pagina specificato 
 
 ### Immagini
-Il tag ```<img>``` consente di inserire immagini in un documento HTML.  
+Il tag **`<img>`** consente di inserire immagini in un documento HTML.  
 
-**Attributi**:  
+<details>
+<summary>Attributi:</summary>
+
 - ```src = uri``` specifica l’indirizzo dell’immagine (required)
 - ```alt = text``` testo alternativo nel caso fosse impossibile visualizzare l’immagine
 - ```align = {bottom|middle|top|left|right}``` (deprecato in HTML 4.01) posizione dell’immagine rispetto al testo che la circonda
 - ```width,height = pixels``` larghezza e altezza dell’immagine in pixel
 - ```border = pixels``` (deprecato in HTML 4.01) spessore del bordo dell’immagine
+</details>
 
 ### Form
 Un form (modulo) è una sezione di documento HTML che contiene elementi di controllo che l’utente può utilizzare per inserire dati o in generale per interagire
 Il tag ```<form>``` racchiude tutti gli elementi del modulo (è un elemento di tipo blocco)
 
-**Attributi**:
+<details>
+<summary>Attributi:</summary>
+
 - ```action = uri ``` URI dell’agente che riceverà i dati del form
 - ```name = text``` specifica il nome del form
 - ```method = {get|post}``` specifica il modo in cui i dati vengono inviati
 - ```enctype = content-type``` se il metodo è POST specifica il content type usato per la codifica (encoding) dei dati contenuti nel form
+</details>
 
 La maggior parte dei controlli viene definita mediante il tag ```<input>```
 
 #### Input text
 È un campo per l’inserimento di testo su una sola riga
 
-**Attributi**:
+<details>
+<summary>Attributi: </summary>
+
 - ```name = text``` nome del controllo
 - ```value = text``` eventuale valore iniziale
 - ```size = n``` lunghezza del campo (numero di caratteri)
 - ```maxlength = n``` massima lunghezza del testo (numero di caratteri)
+</details>
 
 #### Input file
 Consente di fare l’upload di un file selezionandolo nel filesystem del client
 
-**Attributi**:
+<details>
+<summary>Attributi:</summary>
+
 - ```name = text``` specifica il nome del controllo
 - ```value = content-type``` lista di MIME types per l’upload
-
+</details>
