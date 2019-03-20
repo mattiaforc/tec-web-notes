@@ -58,6 +58,15 @@
     - [Link e HTTP](#link-e-http)
     - [Immagini](#immagini)
     - [Form](#form)
+  - [HTML5](#html5)
+    - [Canvas](#canvas)
+    - [Video / Audio](#video--audio)
+- [CSS](#css)
+  - [Regole e struttura](#regole-e-struttura)
+  - [Selettori](#selettori)
+  - [Proprietà](#propriet%C3%A0)
+  - [Ereditarietà](#ereditariet%C3%A0)
+  - [Conflitti e Cascade](#conflitti-e-cascade)
 
 # URI e URL
 ## URI
@@ -690,3 +699,136 @@ Il tag **`<textarea>`** consente di definire un campo di inserimento multiriga a
 </details>
 
 Il tag **`<label>`** permette di associare un’etichetta ad un qualunque controllo di un form. L’associazione può essere fatta in forma implicita inserendo il controllo nell’elemento label oppure in forma esplicita tramite l’attributo **for** che deve corrispondere all’attributo **id** del controllo.
+
+## HTML5
+Tra le tante cose, HTML 5 estende notevolmente la possibilità di integrazione di contenuti multimediali nella pagina (embedded content). Elementi come `<audio>`, `<video>`, `<canvas>`, `<math>` permettono di includere contenuti con i quali, è possibile interagire in modo avanzato. Il modello ad eventi di DOM è esteso con eventi specifici che permettono la costruzione di applicazioni sofisticate client-side . Agli eventi si aggiungono nuove API per la manipolazione degli oggetti DOM. 
+### Canvas
+Una delle più importanti innovazioni di HTML 5 è la possibilità di disegnare direttamente sulla pagina e interagire con gli oggetti multimediali. 
+>L’elemento **`<canvas>`** definisce un’area rettangolare in cui disegnare direttamente immagini bidimensionali e modificarle in relazione a eventi, tramite funzioni Javascript. 
+
+La larghezza e l’altezza del canvas sono specificati tramite gli attributi **width** e **height** dell’elemento `<canvas>`. Le coordinate (0,0) corrispondono all’angolo in alto a sinistra.
+
+### Video / Audio
+L’elemento **`<video>`** specifica un meccanismo generico per il caricamento di file e stream video, più alcune proprietà DOM per controllarne l’esecuzione. Ogni elemento `<video>` in realtà può contenere diversi elementi **`<source>`** che specificano diversi file, tra i quali il browser sceglie quello da eseguire. L’elemento **`<audio>`** è usato allo stesso modo per i contenuti sonori.
+
+*Non esiste tuttavia una codifica universalmente accettata ma è necessario codificare il video (o audio) in più formati, per renderlo realmente «cross-browser»*
+
+# CSS
+>I fogli di stile a cascata (Cascading Style Sheets = CSS) hanno lo scopo fondamentale di separare contenuto e presentazione nelle pagine Web. 
+
+Il linguaggio HTML serve a definire il contenuto (ma anche struttura, linking e semantica ) senza tentare di dare indicazioni su come rappresentarlo. I CSS servono a definire come il contenuto deve essere presentato all’utente.
+
+>**Cascading**: È prevista ed è incoraggiata la presenza di fogli di stile multipli, che agiscono uno dopo l'altro, in cascata, per indicare le caratteristiche tipografiche e di layout di un documento HTML.
+
+I vantaggi della separazione di competenze sono evidenti:
+-   Lo stesso contenuto diventa riusabile in più contesti
+-   Basta cambiare i CSS e può essere presentato correttamente in modo ottimale su dispositivi diversi (es. PC e palmari) o addirittura su media diversi (es. video e carta).
+-   Si può dividere il lavoro fra chi gestisce il contenuto e chi si occupa della parte grafica.
+
+Il supporto dei vari browser a CSS è complesso e difficile, infatti, tutti hanno supportato aspetti diversi ed incompatibili delle caratteristiche di CSS. A queste pagine è possibile trovare il supporto dei browser alle singole feature delle varie versioni di CSS:
+-   http://caniuse.com
+-   http://www.w3schools.com/css/
+-   http://www.w3schools.com/css3/
+
+Fra le due sintassi per gli stili esterni:
+-   Quella con `<link>` è più diffusa
+-   Quella con `@import` è meno critica per la
+compatibilità con i vecchi browser.
+
+## Regole e struttura
+>Un’espressione come la seguente prende il nome di **regola CSS**: 
+```css
+H1 { color: blue }
+```
+Una regola CSS è composta da due parti:
+1.  **Selettore**: H1
+2.  **Dichiarazione**: `color: blue`
+    -   **Proprietà**: `color`
+    -   **Valore**: `blue`
+
+## Selettori
+>Il selettore serve per collegare uno stile agli elementi a cui deve essere applicato.
+-   **Selettore universale**: identifica qualunque elemento: **`* { }`**
+-   **Selettori di tipo**: si applicano a tutti gli elementi di un determinato tipo (ad es. tutti i `<p>`) : **`tipo_elemento { }`**
+-   **Classi**: si applicano a tutti gli elementi che presentano l’attributo `class=“nome_class”`.
+**`.nome_classe { }`**
+-   **Identificatori**: si applicano agli elementi che
+presentano l’attributo `id=“nome_id”`: **`#nome_id { }`**
+-   **Pseudoclassi:** si applicano ad un sottoinsieme degli elementi di un tipo identificato da una proprietà: **`tipo_elemento:proprietà { ... }`**
+-   **Pseudoelementi:** si applicano ad una parte di un
+elemento: **`tipo_elemento:parte { ... }`**
+-   **Selettori gerarchici**: si applicano a tutti gli elementi di un dato tipo che hanno un determinato legame gerarchico (discendente, figlio, fratello) con elementi di un altro tipo.
+    -   **`tipo1 tipo2 { ... }`** tipo2 discende da tipo1
+    -   **`tipo1>tipo2 { ... }`** tipo2 è figlio di tipo1
+    -   **`tipo1+tipo2 { ... }`** tipo2 è fratello di tipo1
+-   Se la stessa dichiarazione si applica a più tipi di
+elemento si scrive una regola in **forma raggruppata**: **`H1, H2, H3 { ... }`**
+
+## Proprietà
+>Le proprietà singole permettono di definire un singolo aspetto di stile.
+
+>Le shorthand properties consentono invece di definire un insieme di aspetti, correlati fra di loro usando una sola proprietà.
+<details><summary>Valori:</summary>
+
+-   **Numeri interi e reali**: *“.”* come separatore decimale.
+-   **Grandezze**: usate per lunghezze orizzontali e verticali: un numero seguito da una unità di misura.
+-   **Unità di misura relative**
+    -   **em**: è relativa alla dimensione del font in uso (es. se il font ha corpo 12pt, 1em varrà 12pt, 2em varranno 24pt)
+    -   **px**: pixel, sono relativi al dispositivo di output e alle impostazioni del computer dell'utente
+-   **Unità di misura assolute**:
+    -   **in**: pollici; (1 in =2.54 cm)
+    -   **cm**: centimetri
+    -   **mm**: millimetri
+    -   **pt**: punti tipografici (1/72 di pollice)
+    -   **pc**: pica = 12 punti
+-   **Percentuali**: percentuale del valore che assume la proprietà stessa nell'elemento padre; un numero seguito da %.
+-   **URL assoluti o relativi**; si usa la notazione `url(percorso)`.
+-   **Stringhe**: testo delimitato da apici singoli o doppi.
+-   **Colori**: possono essere identificati con tre metodi differenti:
+    -   In forma **esadecimale** #RRGGBB
+    -   Tramite la funzione **rgb(rosso,verde,blu)**
+    -   Usando una serie di parole chiave che possono indicare colori assoluti o dipendenti dall’impostazione del PC (proprietà di sistema)
+</details>
+
+Per poter rappresentare una pagina HTML il browser deve riuscire ad applicare ad ogni elemento uno stile. 
+
+>L’**attribuzione** può essere **diretta** se l’elemento contiene uno stile inline. Esistono una o più regole il cui selettore rimanda all’elemento. 
+
+>Oppure può essere **indiretta** se l’elemento “eredita” lo stile dall’elemento che lo contiene.
+
+## Ereditarietà
+>È un meccanismo di tipo differenziale simile per certi aspetti all’ereditarietà nei linguaggi ad oggetti. Si basa sui blocchi annidati di un documento HTML.
+
+Uno stile applicato ad un **blocco esterno** si applica anche ai blocchi in esso contenuti.
+
+In un **blocco interno**:
+-   Si possono definire stili aggiuntivi
+-   Si possono ridefinire stili definiti in un blocco più esterno (è una sorta di overriding )
+
+Lo stesso ragionamento si può esprimere in termini di DOM: un nodo figlio eredita gli stili dei nodi che si trovano sul ramo da cui discende.
+
+## Conflitti e Cascade
+Nell’applicare gli stili possono nascere conflitti di competenza per diversi motivi:
+-   Esiste un’intersezione tra regole che utilizzano selettori di tipo diverso, ad esempio ID e Classe come in questo caso:
+```css
+p#myID {text-color=red}
+p.myClass {text-color=blue}
+<p id=myID class=myClass>
+```
+-   Una pagina usa più fogli di stile oppure combina fogli di stile esterni e regole interne o inline. 
+-   Nello stesso foglio stile ci sono regole con lo stesso selettore e dichiarazioni diverse.
+
+>Lo standard CSS definisce un insieme di regole di risoluzione dei conflitti che prende il nome di **cascade**. La logica di risoluzione si basa su tre elementi:
+1.  **Origine del foglio stile**:
+    1.  *Autore*: stile definito nella pagina
+    2.  *Browser*: foglio stile predefinito
+    3.  *Utente*: in alcuni browser si può editare lo stile
+2.  **Specificità**: esiste una formula che misura il grado di specificità attribuendo, ad es., un punteggio maggiore ad un selettore di ID rispetto ad uno di Classe
+3.  **Dichiarazione ```!important```**: è possibile aggiungere al
+valore di una dichiarazione la clausola `!important
+p.myClass {text-color: red !important}`. Una clausola marcata come `!important` avrà sempre precedenza sulle altre.
+
+Il CSS assegna un peso a ciascun blocco di regole; In caso di conflitto vince quella con peso maggiore. Per **determinare il peso** si applicano in sequenza una serie di regole:
+1.  **Origine**: l’ordine di prevalenza è autore, utente, browser
+2.  **Specificità del selettore**: ha la precedenza il selettore con specificità maggiore.
+3.  **Ordine di dichiarazione**: se esistono due dichiarazioni con ugual specificità e origine vince quella fornita per ultima.
