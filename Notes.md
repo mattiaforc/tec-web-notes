@@ -1,3 +1,64 @@
+- [URI e URL](#uri-e-url)
+  - [URI](#uri)
+    - [Caratteristiche URI:](#caratteristiche-uri)
+  - [URN e URL](#urn-e-url)
+  - [URL](#url)
+    - [Componenti URL](#componenti-url)
+  - [URI opache e URI generiche](#uri-opache-e-uri-generiche)
+      - [Operazioni sulle URI gerarchiche](#operazioni-sulle-uri-gerarchiche)
+- [HTTP](#http)
+  - [Differenze tra HTTP v1.0 e v1.1](#differenze-tra-http-v10-e-v11)
+    - [Pipeling](#pipeling)
+  - [Messaggi HTTP](#messaggi-http)
+  - [Header HTTP](#header-http)
+  - [I comandi della richiesta](#i-comandi-della-richiesta)
+    - [GET](#get)
+    - [POST](#post)
+    - [PUT](#put)
+    - [DELETE](#delete)
+    - [HEAD](#head)
+    - [OPTIONS](#options)
+    - [TRACE](#trace)
+  - [Status Code](#status-code)
+  - [Cookie](#cookie)
+    - [Struttura dei cookie](#struttura-dei-cookie)
+  - [Autenticazione](#autenticazione)
+    - [Riconoscimento indirizzo IP](#riconoscimento-indirizzo-ip)
+    - [Autenticazione HTTP Basic](#autenticazione-http-basic)
+    - [Autenticazione Form](#autenticazione-form)
+  - [Sicurezza](#sicurezza)
+  - [Architetture più distribuite e articolate per il Web](#architetture-pi%C3%B9-distribuite-e-articolate-per-il-web)
+  - [Caching Distribuito](#caching-distribuito)
+    - [User Agent Cache](#user-agent-cache)
+    - [Proxy Cache](#proxy-cache)
+      - [Forward Proxy Cache](#forward-proxy-cache)
+      - [Reverse (server-side) Proxy Cache](#reverse-server-side-proxy-cache)
+    - [HTTP e Cache](#http-e-cache)
+- [HTML](#html)
+  - [Linguaggi a marcatori](#linguaggi-a-marcatori)
+    - [Caratteristiche](#caratteristiche)
+    - [SGML](#sgml)
+    - [HTML e SGML](#html-e-sgml)
+  - [Tag HTML](#tag-html)
+  - [DTD (Document Type Definition)](#dtd-document-type-definition)
+  - [Header](#header)
+    - [Elementi <meta>](#elementi-meta)
+      - [```<meta>``` http-equiv](#meta-http-equiv)
+      - [```<meta>``` name](#meta-name)
+  - [Body](#body)
+    - [Elementi blocco, elementi inline e liste](#elementi-blocco-elementi-inline-e-liste)
+    - [Elementi rimpiazzati e non rimpiazzati](#elementi-rimpiazzati-e-non-rimpiazzati)
+    - [Heading e paragrafi](#heading-e-paragrafi)
+    - [Gli stili del Testo](#gli-stili-del-testo)
+    - [Liste ordinate e non ordinate](#liste-ordinate-e-non-ordinate)
+    - [Tabelle](#tabelle)
+    - [Link Ipertestuali](#link-ipertestuali)
+      - [Anchor](#anchor)
+    - [URL relativi e assoluti](#url-relativi-e-assoluti)
+    - [Link e HTTP](#link-e-http)
+    - [Immagini](#immagini)
+    - [Form](#form)
+
 # URI e URL
 ## URI
 >Gli **URI** (**Uniform Resource Identifier**) forniscono un meccanismo semplice ed estensibile per identificare una risorsa. 
@@ -146,7 +207,7 @@ leggibile; qui un esempio:
 ### GET
 
 -   Serve per richiedere una risorsa ad un server. È il metodo più frequente: è quello che viene attivato facendo click su un link ipertestuale di un documento HTML, o specificando un URL nell’apposito campo di un browser. 
--   È previsto il passaggio di parametri (la parte \<query\> dell’URL). 
+-   È previsto il passaggio di parametri (la parte `<query>` dell’URL). 
 -   La lunghezza massima di un URL è limitata.
 
 ### POST
@@ -427,7 +488,9 @@ serie di attributi. Esistono due tipi di elementi meta, distinguibili dal primo 
 -   **lang** = linguaggio definisce il linguaggio utilizzato nella pagina *es. language="it"*.
 </details>
 
-### Tipi di elementi del body
+<details>
+<summary>Tipi di elementi del body</summary>
+
 -   **Intestazioni**: titoli organizzati in gerarchia
 -   **Strutture di testo**: paragrafi, testo indentato, ecc.
 -   **Aspetto del testo**: grassetto, corsivo, ecc.
@@ -437,6 +500,7 @@ serie di attributi. Esistono due tipi di elementi meta, distinguibili dal primo 
 -   **Collegamenti ipertestuali** e ancore
 -   **Immagini e contenuti multimediali** (audio, video, animazioni, ecc.)
 -   **Contenuti interattivi**: script, applicazioni esterne.
+</details>
 
 ### Elementi blocco, elementi inline e liste
 Dal punto di vista del layout della pagina gli elementi HTML si dividono in 3 grandi categorie: 
@@ -551,26 +615,78 @@ Il tag ```<form>``` racchiude tutti gli elementi del modulo (è un elemento di t
 - ```enctype = content-type``` se il metodo è POST specifica il content type usato per la codifica (encoding) dei dati contenuti nel form
 </details>
 
-La maggior parte dei controlli viene definita mediante il tag ```<input>```
+Con il tag **`<fieldset>`** si possono creare gruppi di campi
+a cui è possibile attribuire un nome utilizzando il tag
+**`<legend>`**.
 
-#### Input text
-È un campo per l’inserimento di testo su una sola riga
+La maggior parte dei controlli viene definita mediante il tag **`<input>`**:
 
 <details>
-<summary>Attributi: </summary>
+<summary><b>Input text</b></summary>
 
+È un campo per l’inserimento di testo su una sola riga. 
+Attributi:
 - ```name = text``` nome del controllo
 - ```value = text``` eventuale valore iniziale
 - ```size = n``` lunghezza del campo (numero di caratteri)
 - ```maxlength = n``` massima lunghezza del testo (numero di caratteri)
 </details>
 
-#### Input file
-Consente di fare l’upload di un file selezionandolo nel filesystem del client
+<details><summary><b>Input file</b></summary>
 
-<details>
-<summary>Attributi:</summary>
+Consente di fare l’upload di un file selezionandolo nel filesystem del client. 
+Attributi:
 
 - ```name = text``` specifica il nome del controllo
 - ```value = content-type``` lista di MIME types per l’upload
 </details>
+
+<details><summary><b>Checkbox</b></summary>
+
+Un input con tipo “checkbox” definisce una casella di
+spunta.
+Attributi:
+-   `name = text` nome del controllo
+-   `value = text` valore restituito se la casella viene spuntata
+-   `checked = “checked”`
+</details>
+
+<details><summary><b>Radio button</b></summary>
+
+Un radio button è una casella di spunta che serve per realizzare gruppi di scelta mutuamente esclusivi. Tutti i controlli di questo tipo che condividono lo stesso nome sono esclusivi fra di loro .Si può stabilire che un bottone è spuntato per default con l’attributo checked nella forma: `checked=“checked”`
+</details>
+
+<details><summary><b>Buttons</b></summary>
+
+Per i bottoni si utilizzano tre valori dell’attributo type:
+-   **submit** per il bottone che provoca la spedizione del form al server.
+-   **reset** per il bottone che riporta il contenuto dei campi al valore originale.
+-   **button** per un generico bottone di azione.
+
+L’etichetta che compare nel bottone viene definita usando l’attributo **value**.
+
+In HTML 4 è stato introdotto il tag **`<button>`** che offre la possibilità di creare dei bottoni con un aspetto anche complesso. Infatti `<button>` dà la possibilità di inserire il testo del bottone come contenuto del tag. Questo consente di specificare anche codice HTML all'interno del tag: testo formattato ma anche immagini 
+</details>
+
+<details><summary><b>Select (liste di opzioni)</b></summary>
+
+-   Il tag **`<select>`** permette di costruire liste di opzioni. 
+-   Per definire le singole opzioni si usa il tag `<option>`. 
+-   Ricorrendo all’attributo **value** si può attribuire il valore. 
+-   Con l'attributo **selected** si può indicare una scelta predefinita: `selected=“selected”`.
+-   L’aspetto di default è quello di un combo box (tendina a discesa).
+
+Se si utilizza l’attributo multiple (nella forma `multiple=“multiple”`) non abbiamo più un combo ma una lista sempre aperta. Si può operare una scelta multipla tenendo premuto il tasto **[Ctrl]** durante la selezione. L’attributo **size** determina il numero di righe mostrate.
+</details>
+
+<details><summary><b>Optgroup (gruppi di opzioni)</b></summary>
+
+Con il tag **`<optgroup>`** è possibile organizzare la lista (sia a scelta singola che multipla) in gruppi. Molto utile per liste lunghe.
+</details>
+
+<details><summary><b>Textarea</b></summary>
+
+Il tag **`<textarea>`** consente di definire un campo di inserimento multiriga adatto a un testo lungo. Il contenuto dell’elemento è il testo iniziale. L'attributo **rows** indica il numero di righe della textarea, **cols** il numero di caratteri (cioè di colonne) che ogni riga può contenere.
+</details>
+
+Il tag **`<label>`** permette di associare un’etichetta ad un qualunque controllo di un form. L’associazione può essere fatta in forma implicita inserendo il controllo nell’elemento label oppure in forma esplicita tramite l’attributo **for** che deve corrispondere all’attributo **id** del controllo.
