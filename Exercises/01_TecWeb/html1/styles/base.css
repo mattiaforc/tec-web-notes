@@ -1,0 +1,52 @@
+.navbar a {
+    color:green;
+}
+
+a, a.selected {
+    color: red;
+    text-decoration: none;
+}
+
+.container-left {
+    width: auto;
+    height: 100%;
+    float: left;
+    display: block;
+}
+
+.container-right {
+    width: 75%;
+    height: 100%;
+    display: block;
+    margin-left: 100px;
+    padding-left: 100px;
+}
+
+.navbar ul {
+    padding-inline-start: 0px;
+}
+
+.navbar li {
+    background-color: white;
+    width: 130px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    list-style-type: none;
+    border-right: 20px solid black;
+}
+
+.navbar {
+    padding-left: 5px; 
+}
+
+h1 {
+    padding-top: 10px;
+}
+
+body {
+    background-color: #e6e600;
+    font-family: sans-serif;
+    color: purple;
+}

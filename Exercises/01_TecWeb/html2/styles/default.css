@@ -1,0 +1,105 @@
+/* 
+ogni div occupa un altezza sufficiente a far si' che la pagina "scrolli" verticalmente
+e sia possibile dimostrare l'utilizzo di anchor con query fragment (#idParteRiferita)
+*/		
+.myDiv { 
+	margin-top: 50px; 
+	height: 800px; 
+	padding: 15px; 
+	background-color: #8ab3ff;
+	color: white;
+	border: 1px solid #009; 
+}
+
+.myDiv#lista {
+	height: auto;
+}
+
+.myDiv#paragrafi {
+	height: auto;
+	margin-top: 0px; 
+}
+
+.myDiv#inlineFrame {
+	height: auto;
+	margin-top: 0px; 
+}
+
+.myDiv#paragrafi .beforeImg {
+	float: left;
+}
+
+.myDiv#paragrafi img {
+	float: right;
+}
+
+.myDiv#lista ul {
+	display: inline;
+	list-style-type: none;
+	position: absolute;
+	margin-top: -33px;	
+}
+
+.myDiv#lista li {
+	float: left;
+}
+
+#header {
+	font-size: 0.8em;
+}
+
+img {
+	height: 100px;
+	border: 1px solid gray;
+}
+
+/*
+alcuni elementi distintivi (sfondo, bordo, ecc...) per far capire che e' presente una tabella,
+al di la' della disposizione del testo all'interno di una griglia regolare
+*/			
+table { border: 1px solid #c0c0c0; border-collapse: collapse }
+td,th { border: 1px solid black; text-align: center; padding: 10px; }
+
+/*
+iframe
+*/
+iframe { height: 500px; width: 100%; frameborder: 1px; marginheight: 5px; marginwidth: 5px; scrolling: auto; }
+
+/*
+elementi che non scrollano con il resto della pagina
+*/				
+#firebugBookmarklet { 
+	position: fixed; left: 0px; top: 750px; font-family: Arial; font-style: italic; font-size: xx-small; 
+}
+#goBack { 
+	position: fixed; right: 0px; top: 0px; height: auto;
+	/* notare le differenze nel box-model di user-agent diversi */
+	border: 1px solid blue;
+	background: lightGray;
+	margin: 15px;
+	padding: 30px;
+	visibility: hidden;
+}
+/*
+look and feel da pulsante, anche se si tratta di un anchor
+*/
+.clickMe {
+	background: #8ab3ff;
+	color: white;
+	font-weight: bolder;
+	font-style: italic;
+	padding-right: 5px;
+	padding-left: 5px;
+	border: 1px;
+	border-color: #009;
+	border-style: solid; 
+} 			
+/*
+remove the underline. Typically it's done so that the underline appears only when a hover occurs. 
+*/
+.clickMe:link, .clickMe:visited, .clickMe:active {
+	text-decoration: none;
+}
+.clickMe:hover {
+	color: #009; background: #8ab3ff;
+}
