@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name = "lettera" type="letteraType">
+        <xs:element name = "mittente" type="xs:string">
+        <xs:element name = "data" type="xs:date">
+        <xs:element name = "destinatario" type="xs:string">
+        <xs:element name = "saluto" type="xs:string">
+        <xs:element name = "corpo" type="corpo">
+        <xs:element name = "chiusura" type="xs:string">
+        <xs:element name = "firma" type="xs:string">
+
+        <xs:complexType name="corpo">
+            <xs:sequence>
+                <xs:element name="paragrafo" type="xs:string" minOccurs="1" maxOccurs= "unbounded">
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
