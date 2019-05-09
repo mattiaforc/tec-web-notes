@@ -67,6 +67,27 @@
   - [Proprietà](#propriet%C3%A0)
   - [Ereditarietà](#ereditariet%C3%A0)
   - [Conflitti e Cascade](#conflitti-e-cascade)
+- [Javascript](#javascript)
+  - [Oggetti](#oggetti)
+    - [Costanti oggetto](#costanti-oggetto)
+    - [Array](#array)
+    - [Oggetti e Array](#oggetti-e-array)
+    - [Stringhe](#stringhe)
+    - [Tipi valore e tipi riferimento](#tipi-valore-e-tipi-riferimento)
+  - [Funzioni](#funzioni)
+    - [Costanti funzione e costruttore Function](#costanti-funzione-e-costruttore-function)
+    - [Metodi](#metodi)
+    - [Costruttori](#costruttori)
+  - [Operatori](#operatori)
+  - [Javascript in HTML](#javascript-in-html)
+    - [Browser Objects](#browser-objects)
+  - [Modello ad eventi](#modello-ad-eventi)
+    - [Tabella riassuntiva eventi](#tabella-riassuntiva-eventi)
+    - [Gestori di evento (event handlers)](#gestori-di-evento-event-handlers)
+  - [DOM](#dom)
+    - [Form](#form-1)
+      - [Text](#text)
+      - [Validazione form](#validazione-form)
 
 # URI e URL
 ## URI
@@ -832,3 +853,411 @@ Il CSS assegna un peso a ciascun blocco di regole; In caso di conflitto vince qu
 1.  **Origine**: l’ordine di prevalenza è autore, utente, browser
 2.  **Specificità del selettore**: ha la precedenza il selettore con specificità maggiore.
 3.  **Ordine di dichiarazione**: se esistono due dichiarazioni con ugual specificità e origine vince quella fornita per ultima.
+
+
+
+
+# Javascript
+>JavaScript è un linguaggio di scripting sviluppato per dare interattività alle pagine HTML. Può essere inserito direttamente nelle pagine Web; in pratica è lo standard «client-side» per implementare pagine «dinamiche». Il codice JavaScript viene eseguito da un interprete contenuto all’interno del browser.
+
+**Differenze tra Java e Javascript**
+
+- JavaScript è **interpretato** e **non compilato**
+- JavaScript è **object-based** ma **non class-based**
+  - Esiste il concetto di oggetto
+  - Non esiste il concetto di classe
+- JavaScript è **debolmente tipizzato** (weakly typed); Non è necessario definire il tipo di una variabile. Attenzione però: questo non vuol dire che i dati non abbiano un tipo (sono le variabili a non averlo in modo statico)
+
+Le variabili sono definite con la keyword **var**; non hanno un tipo e possono contenere valori di qualsiasi tipo.
+
+Esiste lo **scope globale** e quello **locale** (ovvero dentro una funzione) ma, a differenza di Java, non esiste lo scope di blocco.
+
+Ad ogni variabile può essere assegnato il valore **null** che rappresenta l’assenza di un valore. Una variabile non inizializzata ha invece un valore
+indefinito **undefined**. 
+
+**Tipi primitivi**:
+
+Javascript prevede pochi tipi primitivi: **numeri**,
+**booleani** e **stringhe**:
+
+**Numeri (number)**:
+- Sono rappresentati in formato floating point a 8 byte.
+- Non c’è distinzione fra interi e reali
+- Esiste il valore speciale **NaN** (not a number) per le operazioni non ammesse (ad esempio, radice di un numero negativo)
+- Esiste il valore **infinite** (ad esempio, per la divisione per zero)
+
+**Booleani (boolean)**:
+
+- ammettono i valori **true** e **false**
+
+## Oggetti 
+>Gli oggetti sono tipi composti che contengono un certo numero di **proprietà** (attributi).
+
+ Ogni proprietà ha un **nome** e un **valore**; si accede alle proprietà con l’operatore ‘.’ (punto). Le proprietà non sono definite a priori e possono essere aggiunte dinamicamente. Gli oggetti vengono creati usando l’operatore **new**:
+ ```javascript
+ var o = new Object()
+ ```
+*Attenzione*: `Object()` è un costruttore e non una classe. Le classi non esistono e quindi i due concetti non si sovrappongono come avviene in Java! 
+Un oggetto appena creato è completamente vuoto, non ha ne proprietà né metodi. Possiamo costruirlo dinamicamente appena assegniamo un valore ad una proprietà la proprietà comincia ad esistere.
+```javascript
+var o = new Object();
+o.x = 7;
+o.y = 8;
+o.tot = o.x + o.y;
+```
+### Costanti oggetto
+Le costanti oggetto (**object literal**) sono racchiuse fra parentesi graffe { } e contengono un elenco di attributi nella forma: `nome:valore`
+```javascript
+var nomeoggetto = {prop1:val1, prop2:val2, ...}
+```
+
+### Array
+>Gli array sono tipi composti i cui elementi sono accessibili mediante un indice numerico: l’indice parte da zero e non hanno una dimensione prefissata (simili agli ArrayList di Java).
+
+Espongono attributi e metodi, e vengono istanziati con `new Array([dimensione])`. Possono contenere elementi di tipo eterogeneo: 
+```javascript
+var b = [1,true,"ciao",{x:1,y:2}];
+```
+
+### Oggetti e Array
+Gli oggetti in realtà sono **array associativi**: strutture composite i cui elementi sono accessibili mediante un indice di tipo stringa (nome) anziché attraverso un indice numerico. Si può quindi utilizzare anche una sintassi analoga a quella degli array. Le due sintassi sono del tutto equivalenti e si possono mescolare:
+
+<table><tr><td>
+
+```javascript
+var o = new Object();
+o.x = 7;
+o.y = 8;
+o.tot = o.x + o.y;
+alert(o.tot); 
+```
+<td><b>=</b></td>
+</td><td>
+
+```javascript
+var o = new Object();
+o["x"] = 7;
+o.y = 8;
+o["tot"] = o.x + o["y"];
+alert(o.tot); 
+```
+</td></tr></table>
+
+### Stringhe
+>Mentre in Java sono oggetti che sembrano dati di tipo primitivo in JavaScript sono dati di tipo **primitivo che sembrano oggetti**. Sono sequenze arbitrarie di caratteri in formato UNICODE a 16 bit e sono immutabili come in Java. Esiste la possibilità di definire costanti stringa (**string literal**) delimitate da apici singoli ('ciao') o doppi ("ciao").
+
+È possibile la concatenazione con l’operatore **+**. È possibile la comparazione con gli operatori **<, >, >=, <=** e **!=**
+
+Possiamo però invocare metodi su una stringa o accedere ai suoi attributi:
+```javascript
+var s = "Ciao";
+var n = s.lenght;
+var t = s.charAt(1);
+```
+
+**Non sono** però oggetti e la possibilità di trattarli come tali nasce da due caratteristiche:
+1.  Esiste un tipo **wrapper** String che è un oggetto
+2.  JavaScript fa il boxing in automatico come C# quando una variabile di tipo valore necessita essere convertita in tipo riferimento, un oggetto box è allocato per mantenere tale valore
+
+### Tipi valore e tipi riferimento
+Si può quindi distinguere fra tipi valore e tipi
+riferimento:
+- Numeri e booleani sono tipi valore
+- Array e Oggetti sono tipi riferimento
+
+## Funzioni
+>Una funzione è un frammento di codice JavaScript che viene definito una volta e usato in più punti. Ammette parametri che sono privi di tipo e restituisce un valore il cui tipo non viene definito.
+
+Le funzioni possono essere definite utilizzando la parola chiave **function**. Una funzione può essere assegnata ad una variabile:
+<table><tr><td>
+
+```javascript
+function sum(x,y) {
+  return x+y;
+} 
+```
+</td><td>
+
+```javascript
+var s = sum(2,4);
+```
+</td></tr></table>
+
+### Costanti funzione e costruttore Function
+Esistono **costanti funzione** (function literal) che permettono di definire una funzione e poi di assegnarla ad una variabile con la seguente sintassi:
+```javascript
+var sum = function(x,y) { return x+y; }
+```
+Una funzione può essere anche creata usando un costruttore denominato **Function** (le funzioni sono quindi equivalenti in qualche modo agli oggetti):
+```javascript
+var sum = new Function("x", "y", "return x+y;"); 
+```
+
+### Metodi
+>Quando una funzione viene assegnata ad una proprietà di un oggetto viene chiamata metodo dell’oggetto. 
+
+La cosa è possibile perché, come abbiamo visto, una funzione può essere assegnata ad una variabile. In questo caso all’interno della funzione si può utilizzare la parola chiave **this** per accedere all’oggetto di cui la funzione è una proprietà:
+```javascript
+var o = new Object();
+o.x = 7;
+o.y = 8;
+o.tot = function() { return this.x + this.y; }
+```
+
+### Costruttori
+>Un costruttore è una funzione che ha come scopo quello di costruire un oggetto. Se viene invocato con **new** riceve l’oggetto appena creato e può aggiungere proprietà e metodi.
+
+L’oggetto da costruire è accessibile con la parola chiave **this**. In qualche modo definisce il tipo di un oggetto:
+
+<table><tr><td>
+
+```javascript
+function Rectangle(w, h) {
+  this.w = w;
+  this.h = h;
+  this.area = function() { 
+    return this.w * this.h; 
+  }
+  this.perimeter = function() { 
+    return 2*(this.w + this.h); 
+  }
+} 
+```
+</td><td>
+
+```javascript
+var r = new Rectangle(5,4);
+alert(r.Area);
+```
+</td></tr></table>
+
+## Operatori
+JavaScript ammette tutti gli operatori presenti in C e in Java. Valgono le stesse regole di priorità e associatività. Esistono alcuni operatori tipici:
+- **delete**: elimina una proprietà di un oggetto
+- **void**: valuta un’espressione senza restituire alcun valore
+- **typeof**: restituisce il valore di un operando
+- **===**: identità o uguaglianza stretta (diverso da == che verifica l’eguaglianza)
+- **!==**: non identità (diverso da !=)
+
+## Javascript in HTML
+HTML prevede un apposito tag per inserire script; la sua sintassi è 
+```javascript
+<script> 
+  <!-- script-text //--> 
+</script>
+```
+Il commento HTML (`<!-- //-->`) che racchiude il testo dello script serve per gestire la compatibilità con i browser che non gestiscono JavaScript: In questi casi il contenuto del tag viene ignorato.
+
+Nell’uso del tag `<script>` abbiamo due possibilità:
+1.  **Script esterno**: il tag contiene il riferimento ad un file con estensione .js che contiene lo script:
+
+```javascript
+<script language="Javascript" src="nomefile.js"></script>
+```
+2.  **Script interno**: lo script è contenuto direttamente nel tag:
+```javascript
+<script type="text/javascript"> 
+  alert("Hello World!");
+</script>
+```
+
+### Browser Objects
+Per interagire con la pagina HTML , Javascript utilizza una gerarchia di oggetti predefiniti denominati **Browser Objects** e **DOM Objects**. La pagina corrente è rappresentata dall’oggetto *`document`*. Per scrivere nella pagina si utilizzano i metodi `document.write()` e `document.writeln()`
+
+## Modello ad eventi
+>JavaScript consente di **associare script** agli **eventi** causati dall’interazione dell’utente con la pagina HTML. L’associazione avviene mediante attributi collegati agli elementi della pagina HTML. Gli script prendono il nome di gestori di eventi (**event handlers**)
+
+Nelle risposte agli eventi si può intervenire sul DOM modificando dinamicamente la struttura della pagina (DHTML) DHTML = JavaScript + DOM + CSS. È un modello di tipo reattivo simile a quello di Swing o delle applicazioni Windows sviluppate con .NET.
+
+### Tabella riassuntiva eventi
+
+| Evento | Applicabilità | Occorrenza | Event handler |
+-|-|-|-|
+Abort |Immagini| L’utente blocca il caricamento di un’immagine |onAbort
+Blur| Finestre e tutti gli elementi dei form| L’utente oglie il focus a un elemento di un form o a una finestra |onBlur
+Change |Campi di immissione di testo o liste di selezione |L’utente cambia il contenuto di un elemento | onChange
+Click | Tutti i tipi di bottoni e i link | L’utente ‘clicca’ su un bottone o un link| onClick
+DragDrop| Finestre |L’utente fa il drop di un oggetto in una finestra| onDragDrop
+Error| Immagini, finestre |Errore durante il caricamento |onError
+Focus| Finestre e tutti gli elementi dei form| L’utente dà il focus a un elemento di un form o a una finestra |onFocus
+KeyDown| Documenti, immagini, link, campi di immissione di testo |L’utente preme un tasto| onKeyDown
+KeyPress| Documenti, immagini, link, campi di immissione di testo |L’utente digita un tasto (pressione + rilascio) | onKeyPress
+KeyUp| Documenti, immagini, link, campi di immissione di testo| L’utente rilascia un tasto| onKeyUp
+Load| Corpo del documento |L’utente carica una pagina nel browser| onLoad
+MouseDown| Documenti, bottoni, link| L’utente preme il bottone del mouse |onMouseDown
+MouseMove| Di default nessun elemento |L’utente muove il cursore del mouse | onMouseMove
+MouseOut| Mappe, link| Il cursore del mouse esce fuori da un link o da una mappa| onMouseOut|
+MouseOver| Link| Il cursore passa su un link| onMouseOver
+MouseUp| Documenti, bottoni, link| L’utente rilascia il bottone del mouse| onMouseUp
+Move| Windows| La finestra viene spostata |onMove
+Reset| Form| L’utente resetta un form| onReset
+Resize| Finestre | La finestra viene ridimensionata onResize
+Select| Campi di immissione di testo (input e textarea)| L’utente seleziona il campo |onSelect
+Submit| Form| L’utente sottomette il form |onSubmit
+Unload| Corpo del documento |L’utente esce dalla pagina| onUnload
+
+### Gestori di evento (event handlers)
+Come si è detto, per «agganciare» un gestore di evento ad un evento si utilizzano gli attributi degli elementi HTML. La sintassi è:
+```javascript
+<tag eventHandler="JavaScript Code">
+```
+Esempio:
+```javascript
+<input type="button" value="Calculate" onClick=‘alert("Calcolo")’/>
+```
+È possibile inserire più istruzioni in sequenza, ma è meglio definire delle funzioni (in testata)! È sempre necessario alternare doppi apici e apice singolo:
+```javascript 
+<input type="button" value="Apriti sesamo!" onClick="window.open('myDoc.html', 'newWin')">
+```
+
+## DOM
+Il punto di partenza per accedere al Documento Object Model (DOM) della pagina è l’oggetto document. Document espone 4 collezioni di oggetti che rappresentano gli elementi di primo livello: 
+- anchors[]
+- forms[]
+- images[]
+- links[]
+
+L’accesso agli elementi delle collezioni può avvenire per indice (ordine di definizione nella pagina) o per nome (attributo name dell’elemento): 
+```javascript
+document.links[0]
+document.links["nomelink"]
+```
+In base all’equivalenza tra array associativi e oggetti la seconda forma può essere scritta anche come 
+```javascript
+document.nomelink
+```
+
+<details><summary>Metodi:</summary>
+
+- **getElementById()**: restituisce un riferimento al primo oggetto della pagina avente l’id specificato come argomento
+- **write()**: scrive un pezzo di testo nel documento
+- **writeln()**: come write() ma aggiunge un a capo
+
+</details>
+<details><summary>Proprietà</summary>
+
+- bgcolor: colore di sfondo
+- fgcolor: colore di primo piano
+- lastModified: data e ora di ultima modifica
+- cookie: tutti i cookies associati al document
+- rappresentati da una stringa di coppie: nome-valore
+- title: titolo del documento
+- URL: url del documento
+
+</details>
+
+### Form
+Un oggetto form può essere referenziato con il suo nome o mediante il vettore **forms[]** esposto da *document*: 
+```javascript
+document.nomeForm
+document.forms[n]
+document.forms["nomeForm"]
+```
+Gli **elementi** del form possono essere referenziati con il loro nome o mediante il vettore *elements[]*:
+```javascript
+document.nomeForm.nomeElemento
+document.forms[n].elements[m]
+document.forms["nomeForm"].elements["nomeElem"]
+```
+Per ogni elemento del form esistono proprietà corrispondenti ai vari attributi:
+`id, name, value, type, className`
+
+<details><summary>Proprietà</summary>
+
+- **action**: riflette l’attributo action
+- **elements**: vettore contenente gli elementi della form
+- **length**: numero di elementi nella form
+- **method**: riflette l’attributo method
+- **name**: nome del form
+- **target**: riflette l’attributo target
+</details>
+
+<details><summary>Metodi</summary>
+
+- **reset()**: resetta il form
+- **submit()**: esegue il submit
+</details>
+
+<details><summary>Eventi</summary>
+
+- **onreset**:  quando il form viene resettato
+- **onsubmit**: quando viene eseguito il submit del form
+
+</details>
+<details><summary>Controlli del form</summary>
+
+Ogni tipo di controllo (widget) che può entrare a far parte di un form è rappresentato da un oggetto JavaScript:
+- Text: `<input type =“text”>`
+- Checkbox: `<input type=“checkbox”>`
+- Radio: `<input type=“radio”>`
+- Button: `<input type=“button”> o <button>`
+- Hidden: `<input type=“hidden”>`
+- File: `<input type=“file”>`
+- Password: `<input type=“password”>`
+- Textarea: `<textarea>`
+- Submit: `<input type=“submit”>`
+- Reset: `<input type=“reset”>` 
+</details>
+
+#### Text
+<details><summary>Proprietà (get/set)</summary>
+
+- **defaultValue** valore di default
+- **Disabled** disabilitazione / abilitazione del campo
+- **maxLength** numero massimo di caratteri
+- **readOnly** sola lettura / lettura e scrittura
+- **size** dimensione del controllo
+</details>
+
+<details><summary>Metodi</summary>
+
+- **select()** seleziona una parte di testo
+</details>
+
+#### Validazione form
+Generalmente si valida un form in due momenti:
+1.  Durante **l’inserimento** utilizzando l’evento **onChange()** sui vari controlli
+2.  Al momento del **submit** utilizzando l’evento **onClick()** del bottone di submit o l’evento **onSubmit()** del form
+
+<details><summary>Esempio di validazione</summary>
+
+```javascript
+<head>
+  <script type="text/javascript">
+    function qty_check(item, min, max) {
+      returnVal = false;
+      if (parseInt(item.value) < min) or (parseInt(item.value) > max) 
+        alert(item.name+"deve essere fra "+min+" e "+max);
+      else returnVal = true;
+      return returnVal;
+    }
+    function validateAndSubmit(theForm) {
+      if (qty_check(theform.quantità,0,999)) { 
+        alert("Ordine accettato"); 
+        return true; 
+      }
+      else { 
+        alert("Ordine rifiutato");
+        return false; 
+      }
+    }
+  </script>
+</head>
+```
+```javascript
+<body>
+  <form name="widget_order" action="lwapp.html" method="post"> Quantità da ordinare
+    <input type="text" name="quantità" onchange=“return qty_check(this,0,999)">
+    <br/>
+    <input type="submit" value="Trasmetti l’ordine"  onclick=“return validateAndSubmit(this.form)">
+  </form>
+</body>
+```
+```javascript
+<form name="widget_order" action="lwapp.html" method="post" onSubmit="return qty_check(this.quantita,0,999)">
+  ...
+  <input type="submit" />
+  ...
+</form>
+```
+</details>
