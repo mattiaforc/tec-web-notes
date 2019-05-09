@@ -88,6 +88,17 @@
     - [Form](#form-1)
       - [Text](#text)
       - [Validazione form](#validazione-form)
+- [AJAX](#ajax)
+  - [Tipica sequenza AJAX](#tipica-sequenza-ajax)
+  - [Proprietà di XMLHttpRequest](#propriet%C3%A0-di-xmlhttprequest)
+  - [Proprietà ReadyState](#propriet%C3%A0-readystate)
+  - [Proprietà status e statusText](#propriet%C3%A0-status-e-statustext)
+  - [Proprietà responseText](#propriet%C3%A0-responsetext)
+  - [Callback](#callback)
+  - [Esempio AJAX](#esempio-ajax)
+  - [JSON](#json)
+    - [Parser JSON](#parser-json)
+    - [JSON e AJAX](#json-e-ajax)
 
 # URI e URL
 ## URI
@@ -1261,3 +1272,262 @@ Generalmente si valida un form in due momenti:
 </form>
 ```
 </details>
+
+# AJAX
+L’utilizzo di **DHTML** (JavaScript/Eventi + DOM + CSS) delinea un nuovo modello per applicazioni Web. Modello a eventi simile a quello delle applicazioni tradizionali.
+
+A livello concettuale abbiamo però due livelli di eventi: 
+- **Eventi locali** che portano ad una modifica diretta DOM da parte di Javascript e quindi a cambiamento locale della pagina
+- **Eventi remoti** ottenuti tramite ricaricamento della pagina che viene modificata lato server in base ai parametri passati in GET o POST 
+
+>Il ricaricamento di pagina per rispondere a  interazione con l’utente prende il nome di **postback**.
+
+**AJAX** non è un acronimo ma spesso viene interpretato come **Asynchronous Javascript And Xml**.
+AJAX non è una nuova tecnologia per se ma è basato su tecnologie standard (già viste all’interno del corso) e combinate insieme per realizzare un modello di interazione più ricco.
+
+AJAX punta a supportare applicazioni user friendly con elevata interattività (si usa spesso il termine RIA - **Rich Interface Application**). L’idea alla base di AJAX è quella di consentire agli script JavaScript di interagire direttamente con il server.
+
+L’elemento centrale è l’utilizzo dell’oggetto JavaScript **XMLHttpRequest**. Consente di ottenere dati dal server senza necessità di ricaricare l’intera pagina. Realizza comunicazione **asincrona** fra client e server: il client non interrompe interazione con utente anche quando è in attesa di risposte dal server.
+
+## Tipica sequenza AJAX
+- Si verifica un evento determinato dall’interazione fra utente e pagina Web
+- L’evento comporta l’esecuzione di una funzione JavaScript in cui:
+  - Si istanzia un oggetto di classe **XMLHttpRequest**
+  - Si configura XMLHttpRequest: si associa una funzione di **callback**, si effettua configurazione, ...
+  - Si effettua chiamata asincrona al server
+- Il server elabora la richiesta e risponde al client
+- Il browser invoca la funzione di callback che:
+- Elabora il risultato
+- Aggiorna il DOM della pagina per mostrare i risultati
+dell’elaborazione
+
+È l’oggetto **XMLHttpRequest** che effettua richiesta di una risorsa via HTTP a server Web. NON sostituisce URI della propria richiesta all’URI corrente; NON provoca cambio di pagina. Può inviare info (parametri) sotto forma di variabili (come form).
+
+Può effettuare sia richieste **GET** che **POST**. Le richieste possono essere di tipo:
+- **Sincrono**: blocca flusso di esecuzione del codice Javascript (ci interessa poco)
+- **Asincrono**: NON interrompe il flusso di esecuzione
+del codice Javascript né le operazioni dell'utente
+sulla pagina
+
+I browser recenti supportano **XMLHttpRequest** come oggetto nativo: In questo caso (oggi il più comune) le cose sono molto semplici:
+```javascript
+var xhr = new XMLHttpRequest();
+```
+La lista dei metodi disponibili è diversa da browser a browser. In genere si usano solo quelli presenti in Safari (sottoinsieme più limitato, ma comune a tutti i browser che supportano AJAX):
+<details><summary>Metodi</summary>
+
+- **`open()`** ha lo scopo di inizializzare la richiesta da formulare al server. Lo standard W3C prevede 5 parametri, di cui 3 opzionali: **`open (method, uri [,async][,user][,password])`**. L’uso più comune per AJAX ne prevede 3, di cui uno comunemente fissato: **`open (method, uri, true)`**, dove:
+  - **method**: stringa e assume il valore “get” o “post”
+  - **uri**: stringa che identifica la risorsa da ottenere (URL assoluto o relativo)
+  - **async**: valore booleano che deve essere impostato come true per indicare al metodo che la richiesta da effettuare è di tipo asincrono
+- **`setRequestHeader(nomeheader, valore)`**: consente di impostare gli header HTTP della richiesta da inviare. Viene invocata più volte, una per ogni header da impostare. Per una richiesta GET gli header sono opzionali .Sono invece necessari per impostare codifica utilizzata nelle richieste POST. È comunque importante impostare header **connection** di solito al valore **close**.
+- **`send(body)`**: consente di inviare la richiesta al server. Non è bloccante in attesa di risposta se il parametro async di open è stato impostato a *true*. Prende come parametro una stringa che costituisce il body della richiesta HTTP.
+  
+**GET**
+```javascript
+var xhr = new XMLHttpRequest();
+xhr.open("get", "pagina.html?p1=v1&p2=v2", true );
+xhr.setRequestHeader("connection", "close");
+xhr.send(null);
+```
+**POST**
+```javascript
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "pagina.html", true );
+xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+xhr.setRequestHeader("connection", "close");
+xhr.send("p1=v1&p2=v2");
+```
+- **`getResponseHeader()`** e **`getAllResponseHeader()`**: Consentono di leggere gli header HTTP che descrivono la risposta del server. Sono utilizzabili solo nella funzione di callback. Possono essere invocati sicuramente in modo safe solo a richiesta conclusa `(readystate==4)`. In alcuni browser possono essere invocati anche in fase di ricezione della risposta `(readystate==3)`.
+- **`abort()`**: consente l’interruzione delle operazioni di invio o ricezione. Non ha bisogno di parametri. Termina immediatamente la trasmissione dati. *Attenzione*: non ha senso invocarlo dentro la funzione di callback: se readyState non cambia, il metodo non viene richiamato; readyState non cambia quando la risposta si fa attendere. Si crea un’altra funzione da far richiamare in modo asincrono al sistema mediante il metodo **`setTimeOut(funzioneAsincronaPerAbortire,timeOut)`**. Al suo interno si valuta se continuare l’attesa o
+abortire l’operazione.
+</details>
+
+## Proprietà di XMLHttpRequest
+Stato e risultati della richiesta vengono memorizzati dall’interprete Javascript all’interno dell’oggetto XmlHttpRequest durante la sua esecuzione. Le proprietà comunemente supportate dai vari browser sono:
+- **readyState**
+- **onreadystatechange**
+- **status**
+- **statusText**
+- **responseText****`setTimeOut(funzioneAsincronaPerAbortire,timeOut)`**
+- **responseXML**
+
+## Proprietà ReadyState
+Proprietà in sola lettura di tipo intero che consente di leggere in ogni momento lo stato della richiesta. Ammette 5 valori:
+1.  **uninitialized** - l'oggetto esiste, ma non è stato ancora richiamato open()
+2.  **open** - è stato invocato il metodo open(), ma send() non ha ancora effettuato l'invio dati
+3. **sent** - metodo send() è stato eseguito e ha effettuato la richiesta
+4.  **receiving** – la risposta ha cominciato ad arrivare
+5.  **loaded** - l'operazione è stata completata
+
+**Attenzione**:
+Questo ordine non è sempre identico e non è sfruttabile allo stesso modo su tutti i browser. L'unico stato supportato da tutti i browser è il 4. Come si è detto l'esecuzione del codice non si blocca sulla send() in attesa dei risultati. Per gestire la risposta si deve quindi adottare un approccio a eventi. Occorre registrare una funzione di callback che viene richiamata in modo asincrono ad ogni cambio di stato della proprietà ReadyState. La sintassi è:
+```javascript
+xhr.onreadystatechange = nomefunzione
+xhr.onreadystatechange = function(){istruzioni}
+```
+## Proprietà status e statusText
+**status** contiene un valore intero corrispondente al codice HTTP dell’esito della richiesta:
+- 200 in caso di successo (l’unico in base al quale i dati ricevuti in risposta possono essere ritenuti corretti e significativi)
+- Possibili altri valori (in particolare d’errore: 403, 404, 500, …) 
+   
+**statusText** contiene invece una descrizione testuale del codice HTTP restituito dal server. Esempio:
+```javascript
+if (xhr.status != 200)
+  alert(xhr.statusText);
+```
+
+## Proprietà responseText
+Contengono i dati restituiti dal server.
+- **responseText**: stringa che contiene il body della risposta HTTP. Disponibile solo a interazione ultimata `(readystate==4)`
+- **responseXML**: body della risposta convertito in documento XML (se possibile). Consente la navigazione via Javascript. Può essere **null** se i dati restituiti non sono un documento XML ben formato.
+
+## Callback
+Viene invocata ad ogni variazione di **readystate**. Usa **readystate** per leggere lo stato di avanzamento della richiesta. Usa **status** per verificare l’esito della richiesta. Ha accesso agli header di risposta rilasciati dal server con `getAllResponseHeaders()` e `getResponseHeader()`. Se `readystate==4` può leggere il contenuto della risposta con *responseText* e *responseXML*.
+
+## Esempio AJAX
+```html
+<html>
+  <head>
+    <script src="selectmanager_xml.js"></script>
+  </head>
+  <body>
+    <!-- Lista di selezione -->
+    <form action=""> Scegli un contatto:
+      <select name=”manager“ onchange="showManager(this.value)">
+        <option value=”Carlo11">Carlo Rossi</option>
+        <option value=”Anna23">Anna Bianchi</option>
+        <option value=”Giovanni75">Giovanni Verdi</option>
+      </select>
+    </form>
+    <!-- Area in cui mostrare i risultati -->
+    <b><span id="companyname"></span></b><br/>
+    <span id="contactname"></span><br/>
+    <span id="address"></span>
+    <span id="city"></span><br/>
+    <span id="country"></span>
+  </body>
+</html>
+```
+
+Ipotizziamo che i dati sui contatti siano contenuti in un database. Il server:
+- riceve una request con l’identificativo della persona
+- interroga il database
+- restituisce un file XML con i dati richiesti
+```xml
+<?xml version=‘1.0’ encoding=‘UTF-16’?>
+<company>
+  <compname>Microsoft</compname>
+  <contname>Anna Bianchi</contname>
+  <address>Viale Risorgimento 2</address>
+  <city>Bologna</city>
+  <country>Italy</country>
+</company>
+```
+
+**selectmanager_xml.js**
+```javascript
+var xmlHttp;
+function showManager(str) { 
+  xmlHttp=new XMLHttpRequest();
+  var url="getmanager_xml.jsp?q="+str;
+  xmlHttp.onreadystatechange=stateChanged;
+  xmlHttp.open("GET",url,true);
+  xmlHttp.send(null);
+}
+function stateChanged(){ 
+  if (xmlHttp.readyState==4) {
+    var xmlDoc=xmlHttp.responseXML.documentElement;
+    var compEl=xmlDoc.getElementsByTagName("compname")[0];
+    var comName = compEl.childNodes[0].nodeValue;
+    document.getElementById("companyname").innerHTML=
+    compName;
+    //...
+  }
+}
+```
+
+## JSON
+>JSON è l’acronimo di JavaScript Object Notation. Formato per lo scambio di dati, considerato molto più comodo di XML.
+
+Si basa sulla notazione usata per le costanti oggetto (object literal) e le costanti array (array literal) in JavaScript. In Javascript è possibile creare un oggetto in base a una costante oggetto:
+<table><tr><td>
+
+```javascript
+var Beatles =
+{
+  "Paese" : "Inghilterra",
+  "AnnoFormazione" : 1959,
+  "TipoMusica" : "Rock"
+} 
+```
+</td><td>=</td><td>
+
+```javascript
+var Beatles = new Object();
+Beatles.Paese = "England";
+Beatles.AnnoFormazione = 1959;
+Beatles.TipoMusica = "Rock"; 
+```
+</td></tr></table>
+In modo analogo è possibile creare un array utilizzando una costante di tipo array:
+
+<table><tr><td>
+
+```javascript
+var Membri = ["Paul","John","George","Ringo"];
+```
+</td><td>
+
+```javascript
+var Membri = new Array("Paul","John","George","Ringo");
+```
+</td></tr></table>
+Possiamo anche avere oggetti che contengono array:
+
+```javascript
+var Beatles = {
+  “Paese" : “Inghilterra",
+  “AnnoFormazione" : 1959,
+  “TipoMusica" : "Rock",
+  "Membri" : ["Paul", "John", "George", "Ringo"]
+}
+```
+È infine possibile definire array di oggetti:
+```javascript
+var Rockbands = 
+[
+  {
+    "Nome" : "Beatles",
+    “Paese" : “Inghilterra",
+    “AnnoFormazione" : 1959,
+    “TipoMusica" : "Rock",
+    "Membri" : ["Paul","John","George","Ringo"]
+  },
+  {
+    "Nome" : "Rolling Stones",
+    “Paese" : “Inghilterra",
+    “AnnoFormazione" : 1962,
+    “TipoMusica" : "Rock",
+    "Membri" : ["Mick","Keith","Charlie","Bill"]
+  }
+]
+```
+La sintassi JSON si basa su quella delle costanti oggetto e array di JavaScript. Un “oggetto JSON” altro non è che una stringa equivalente a una costante oggetto di JavaScript:
+```json
+'{"Paese" : "Inghilterra", "AnnoFormazione" :
+1959, "TipoMusica" : "Rock'n'Roll", "Membri" :
+["Paul","John","George","Ringo"] }'
+```
+### Parser JSON
+Di solito si preferisce utilizzare parser appositi che traducono solo oggetti JSON e non espressioni JavaScript di qualunque tipo. Il parser espone l’oggetto JSON con due metodi:
+1.  **`JSON.parse(strJSON)`**: converte una stringa JSON in un oggetto JavaScript 
+2.  **`JSON.stringify(objJSON)`**: converte un oggetto JavaScript in una stringa JSON
+
+### JSON e AJAX
+Ad esempio in una interazione client-server in cui il cliente vuole trasferire un oggetto JSON. 
+
+| Lato Client | Lato Server
+|-|-|
+Sul lato client: Si crea un oggetto JavaScript e si riempiono le sue proprietà con le informazioni necessarie. Si usa **`JSON.stringify()`** per convertire l’oggetto in stringa JSON. Si usa la funzione **`encodeURIComponent()`** per convertire la stringa in un formato utilizzabile in una richiesta HTTP. Si manda la stringa al server mediante **XMLHttpRequest** (stringa viene passata comevariabile con GET o POST) | Si decodifica la stringa JSON e la si trasforma in oggetto Java utilizzando un apposito parser. Si elabora l’oggetto. Si crea un nuovo oggetto Java che contiene dati della risposta. Si trasforma l’oggetto Java in stringa JSON usando il parser suddetto. Si trasmette la stringa JSON al client nel corpo della risposta HTTP: **`response.out.write(strJSON)`**;
+Sul lato client, all’atto della ricezione: Si converte la stringa JSON in un oggetto Javascript usando **`JSON.parse()`**. Si usa liberamente l’oggetto per gli scopi desiderati. | 
