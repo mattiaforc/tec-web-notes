@@ -12,11 +12,15 @@
 	<servlet>
 		<servlet-name>HelloWorld</servlet-name>
 		<servlet-class> it.unibo.tw.web.HelloWorldServlet </servlet-class>
+		<servlet-name>FormServlet</servlet-name>
+		<servlet-class> it.unibo.tw.web.FormServlet</servlet-class>
 	</servlet>
 	<!-- Map some URL's to the servlet -->
 	<servlet-mapping>
 		<servlet-name>HelloWorld</servlet-name>
 		<url-pattern>/helloworld</url-pattern>
+		<servlet-name>FormServlet</servlet-name>
+		<url-pattern>/form</url-pattern>
 	</servlet-mapping> 
 	
 	<!-- 3) Welcome Files -->
