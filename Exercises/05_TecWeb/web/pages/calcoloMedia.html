@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="-1" />
+    <title>Calcolatrice</title>
+    <link rel="stylesheet" href="../styles/default.css" type="text/css" />
+    <script type="text/javascript">
+        function insert() {
+            var Statistica = new Object();
+
+            var voti = prompt("Inserisci i voti degli esami");
+            Statistica.voti = voti.split(" ").map(function (e) {
+                e = parseInt(e);
+                return (e >= 18 || e <= 33) ? e : (alert("Dati immessi non validi!"), location.reload());
+            });
+
+            Statistica.voti.forEach(function (e) {
+                document.getElementById("voti").innerHTML += e + ", ";
+            });
+
+            Statistica.max = Math.max(...Statistica.voti);
+            document.getElementById("max").innerHTML += Statistica.max;
+
+            Statistica.min = Math.min(...Statistica.voti);
+            document.getElementById("min").innerHTML += Statistica.min;
+
+            var s = Statistica.voti.reduce((a, i) => a + i);
+            Statistica.media = s / Statistica.voti.length;
+
+            var giudizio = calcolaGiudizio(Statistica.media);
+            document.getElementById("media").innerHTML += Statistica.media + " " + giudizio;
+        }
+
+        function calcolaGiudizio(media) {
+            if (media <= 20) return "(Pessimo)";
+            else if (media <= 23) return "(Ok)";
+            else if (media <= 26) return "(Buono)";
+            else if (media <= 30) return "(Ottimo)";
+            else if (media <= 33) return "(Eccellente)";
+        }
+    </script>
+</head>
+
+<body onload="insert();">
+    <p id="voti"><b>VOTI: </b></p>
+    <p id="min"><b>MINIMO: </b></p>
+    <p id="max"><b>MASSIMO: </b></p>
+    <p id="media"><b>MEDIA: </b></p>
+    <p id="variabilita"><b>VARIABILITÀ: </b></p>
+    <p></p>
+    <p></p>
+</body>
+
+</html>
