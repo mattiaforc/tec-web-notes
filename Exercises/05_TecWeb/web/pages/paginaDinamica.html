@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="-1" />
+    <title>Pagina dinamica</title>
+    <link rel="stylesheet" href="../styles/default.css" type="text/css" />
+</head>
+
+<body>
+    <p id="timenow"></p>
+    <form>
+        <div>
+            Il tuo nome: <input type="text">
+            La tua password: <input type="password">
+            Nome del file: <input type="file">
+        </div>
+        <div>
+            Quale dei miei figli preferisci?:
+            <input type="checkbox" id="bart" name="bart" checked>
+            <label for="bart">Bart</label>
+            <input type="checkbox" id="lisa" name="lisa">
+            <label for="lisa">Lisa</label>
+            <input type="checkbox" id="maggie" name="maggie">
+            <label for="maggie">Maggie</label>
+        </div>
+        <div>
+            Chi è il più divertente?:
+            <input type="radio" id="homer" name="fun" value="homer">Homer
+            <input type="radio" id="bart" name="fun" value="bart">Bart
+            <input type="radio" id="lisa" name="fun" value="lisa">Lisa
+        </div>
+        <div style="display: flex; flex-direction: row;">
+            <div>
+                Scegli dei passatempi:<br>
+                <select>
+                    <option>musica</option>
+                    <option>sport</option>
+                    <option>viaggi</option>
+                    <option>letture</option>
+                </select>
+            </div>
+            <div>
+                Il tuo colore preferito:<br>
+                <select>
+                    <option>Rosso</option>
+                    <option>Blu</option>
+                    <option>Verde</option>
+                    <option>Giallo</option>
+                </select>
+            </div>
+            <div>
+                Eventi in ingresso:<br>
+                <textarea maxlength="64" onmouseover="changeColorOver()" onmouseout="changeColorOut()"
+                    onkeydown="keyHandle(event)"></textarea>
+            </div>
+        </div>
+    </form>
+    <script type="text/javascript">
+        function keyHandle(e) {
+            if (e.keyCode == 38) alert('Caratteri rimanenti: ' + (64 - e.target.value.length))
+        }
+
+        function changeColorOver() {
+            document.getElementsByTagName("textarea")[0].style.backgroundColor = 'yellow';
+        }
+
+        function changeColorOut() {
+            document.getElementsByTagName("textarea")[0].style.backgroundColor = 'white';
+        }
+
+        document.body.onload = () => {
+            document.getElementById("timenow").innerHTML = "Oggi è " + new Date().toLocaleString();
+            setInterval(() => {
+                document.getElementById("timenow").innerHTML = "Oggi è " + new Date().toLocaleString();
+            }, 1000)
+        };
+    </script>
+</body>
