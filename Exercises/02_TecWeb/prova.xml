@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<lettera xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="file:///C:\Users\s0000788898\Desktop\TecWeb\02_TecWeb\Es1\lettera.xsd">
+<lettera xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="lettera.xsd">
     <mittente>Mattia</mittente>
-    <data>28-03-2019</data>
+    <data>2001-11-09</data>
     <destinatario>Destinatario</destinatario>
     <saluto>Ciao</saluto>
     <corpo>
