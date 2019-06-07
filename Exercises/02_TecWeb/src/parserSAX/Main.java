@@ -2,9 +2,11 @@ package parserSAX;
 
 import java.time.LocalDate;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.Attributes;
 import org.xml.sax.ErrorHandler;
@@ -36,7 +38,7 @@ public class Main {
 		private boolean[] inElement = new boolean[fields.values().length];
 		
 		public void startElement (String namespaceURI, String localName, String rawName, Attributes atts) {
-			for(var e : fields.values()) {
+			for(Main.fields e : fields.values()) {
 				if(localName.equals(e.name())) inElement[e.ordinal()] = true;
 			}
 		} 
@@ -52,7 +54,7 @@ public class Main {
 		} 
 		
 		public void endElement(String namespaceURI, String localName, String qName) {
-			for(var e : fields.values()) {
+			for(Main.fields e : fields.values()) {
 				if(localName.equals(e.name())) inElement[e.ordinal()] = false;
 			}
 		}
@@ -73,15 +75,14 @@ public class Main {
 			SAXParserFactory SAXPFactory = SAXParserFactory.newInstance();
 			SAXPFactory.setValidating(true);
 			SAXPFactory.setNamespaceAware(true);
-			var parser = SAXPFactory.newSAXParser();
-			var reader = parser.getXMLReader();
+			SAXParser parser = SAXPFactory.newSAXParser();
+			XMLReader reader = parser.getXMLReader();
 			String schemaFeature = "http://apache.org/xml/features/validation/schema";
-			String ignorableWhitespace = "http://apache.org/xml/features/dom/include-ignorable-whitespace";
-			var handler = new LetteraHandler();
+			LetteraHandler handler = new LetteraHandler();
 			reader.setContentHandler(handler);
 			reader.setErrorHandler(new ErrorsHandler());
 			reader.setFeature(schemaFeature, true);
-			for(var arg : args) {
+			for(String arg : args) {
 				reader.parse(arg);
 				System.out.println(handler.getResultAsString());
 			}
