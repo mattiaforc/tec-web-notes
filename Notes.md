@@ -1,104 +1,120 @@
-- [URI e URL](#uri-e-url)
-  - [URI](#uri)
-    - [Caratteristiche URI:](#caratteristiche-uri)
-  - [URN e URL](#urn-e-url)
-  - [URL](#url)
-    - [Componenti URL](#componenti-url)
-  - [URI opache e URI generiche](#uri-opache-e-uri-generiche)
-      - [Operazioni sulle URI gerarchiche](#operazioni-sulle-uri-gerarchiche)
-- [HTTP](#http)
-  - [Differenze tra HTTP v1.0 e v1.1](#differenze-tra-http-v10-e-v11)
-    - [Pipeling](#pipeling)
-  - [Messaggi HTTP](#messaggi-http)
-  - [Header HTTP](#header-http)
-  - [I comandi della richiesta](#i-comandi-della-richiesta)
-    - [GET](#get)
-    - [POST](#post)
-    - [PUT](#put)
-    - [DELETE](#delete)
-    - [HEAD](#head)
-    - [OPTIONS](#options)
-    - [TRACE](#trace)
-  - [Status Code](#status-code)
-  - [Cookie](#cookie)
-    - [Struttura dei cookie](#struttura-dei-cookie)
-  - [Autenticazione](#autenticazione)
-    - [Riconoscimento indirizzo IP](#riconoscimento-indirizzo-ip)
-    - [Autenticazione HTTP Basic](#autenticazione-http-basic)
-    - [Autenticazione Form](#autenticazione-form)
-  - [Sicurezza](#sicurezza)
-  - [Architetture più distribuite e articolate per il Web](#architetture-pi%C3%B9-distribuite-e-articolate-per-il-web)
-  - [Caching Distribuito](#caching-distribuito)
-    - [User Agent Cache](#user-agent-cache)
-    - [Proxy Cache](#proxy-cache)
-      - [Forward Proxy Cache](#forward-proxy-cache)
-      - [Reverse (server-side) Proxy Cache](#reverse-server-side-proxy-cache)
-    - [HTTP e Cache](#http-e-cache)
-- [HTML](#html)
-  - [Linguaggi a marcatori](#linguaggi-a-marcatori)
-    - [Caratteristiche](#caratteristiche)
-    - [SGML](#sgml)
-    - [HTML e SGML](#html-e-sgml)
-  - [Tag HTML](#tag-html)
-  - [DTD (Document Type Definition)](#dtd-document-type-definition)
-  - [Header](#header)
-    - [Elementi <meta>](#elementi-meta)
+- [URI e URL](#URI-e-URL)
+  - [URI](#URI)
+    - [Caratteristiche URI:](#Caratteristiche-URI)
+  - [URN e URL](#URN-e-URL)
+  - [URL](#URL)
+    - [Componenti URL](#Componenti-URL)
+  - [URI opache e URI generiche](#URI-opache-e-URI-generiche)
+      - [Operazioni sulle URI gerarchiche](#Operazioni-sulle-URI-gerarchiche)
+- [HTTP](#HTTP)
+  - [Differenze tra HTTP v1.0 e v1.1](#Differenze-tra-HTTP-v10-e-v11)
+    - [Pipeling](#Pipeling)
+  - [Messaggi HTTP](#Messaggi-HTTP)
+  - [Header HTTP](#Header-HTTP)
+  - [I comandi della richiesta](#I-comandi-della-richiesta)
+    - [GET](#GET)
+    - [POST](#POST)
+    - [PUT](#PUT)
+    - [DELETE](#DELETE)
+    - [HEAD](#HEAD)
+    - [OPTIONS](#OPTIONS)
+    - [TRACE](#TRACE)
+  - [Status Code](#Status-Code)
+  - [Cookie](#Cookie)
+    - [Struttura dei cookie](#Struttura-dei-cookie)
+  - [Autenticazione](#Autenticazione)
+    - [Riconoscimento indirizzo IP](#Riconoscimento-indirizzo-IP)
+    - [Autenticazione HTTP Basic](#Autenticazione-HTTP-Basic)
+    - [Autenticazione Form](#Autenticazione-Form)
+  - [Sicurezza](#Sicurezza)
+  - [Architetture più distribuite e articolate per il Web](#Architetture-pi%C3%B9-distribuite-e-articolate-per-il-Web)
+  - [Caching Distribuito](#Caching-Distribuito)
+    - [User Agent Cache](#User-Agent-Cache)
+    - [Proxy Cache](#Proxy-Cache)
+      - [Forward Proxy Cache](#Forward-Proxy-Cache)
+      - [Reverse (server-side) Proxy Cache](#Reverse-server-side-Proxy-Cache)
+    - [HTTP e Cache](#HTTP-e-Cache)
+- [HTML](#HTML)
+  - [Linguaggi a marcatori](#Linguaggi-a-marcatori)
+    - [Caratteristiche](#Caratteristiche)
+    - [SGML](#SGML)
+    - [HTML e SGML](#HTML-e-SGML)
+  - [Tag HTML](#Tag-HTML)
+  - [DTD (Document Type Definition)](#DTD-Document-Type-Definition)
+  - [Header](#Header)
+    - [Elementi <meta>](#Elementi-meta)
       - [```<meta>``` http-equiv](#meta-http-equiv)
       - [```<meta>``` name](#meta-name)
-  - [Body](#body)
-    - [Elementi blocco, elementi inline e liste](#elementi-blocco-elementi-inline-e-liste)
-    - [Elementi rimpiazzati e non rimpiazzati](#elementi-rimpiazzati-e-non-rimpiazzati)
-    - [Heading e paragrafi](#heading-e-paragrafi)
-    - [Gli stili del Testo](#gli-stili-del-testo)
-    - [Liste ordinate e non ordinate](#liste-ordinate-e-non-ordinate)
-    - [Tabelle](#tabelle)
-    - [Link Ipertestuali](#link-ipertestuali)
-      - [Anchor](#anchor)
-    - [URL relativi e assoluti](#url-relativi-e-assoluti)
-    - [Link e HTTP](#link-e-http)
-    - [Immagini](#immagini)
-    - [Form](#form)
-  - [HTML5](#html5)
-    - [Canvas](#canvas)
-    - [Video / Audio](#video--audio)
-- [CSS](#css)
-  - [Regole e struttura](#regole-e-struttura)
-  - [Selettori](#selettori)
-  - [Proprietà](#propriet%C3%A0)
-  - [Ereditarietà](#ereditariet%C3%A0)
-  - [Conflitti e Cascade](#conflitti-e-cascade)
-- [Javascript](#javascript)
-  - [Oggetti](#oggetti)
-    - [Costanti oggetto](#costanti-oggetto)
-    - [Array](#array)
-    - [Oggetti e Array](#oggetti-e-array)
-    - [Stringhe](#stringhe)
-    - [Tipi valore e tipi riferimento](#tipi-valore-e-tipi-riferimento)
-  - [Funzioni](#funzioni)
-    - [Costanti funzione e costruttore Function](#costanti-funzione-e-costruttore-function)
-    - [Metodi](#metodi)
-    - [Costruttori](#costruttori)
-  - [Operatori](#operatori)
-  - [Javascript in HTML](#javascript-in-html)
-    - [Browser Objects](#browser-objects)
-  - [Modello ad eventi](#modello-ad-eventi)
-    - [Tabella riassuntiva eventi](#tabella-riassuntiva-eventi)
-    - [Gestori di evento (event handlers)](#gestori-di-evento-event-handlers)
-  - [DOM](#dom)
-    - [Form](#form-1)
-      - [Text](#text)
-      - [Validazione form](#validazione-form)
-- [AJAX](#ajax)
-  - [Tipica sequenza AJAX](#tipica-sequenza-ajax)
-  - [Proprietà di XMLHttpRequest](#propriet%C3%A0-di-xmlhttprequest)
-  - [Proprietà ReadyState](#propriet%C3%A0-readystate)
-  - [Proprietà status e statusText](#propriet%C3%A0-status-e-statustext)
-  - [Proprietà responseText](#propriet%C3%A0-responsetext)
-  - [Callback](#callback)
-  - [Esempio AJAX](#esempio-ajax)
-  - [JSON](#json)
-    - [Parser JSON](#parser-json)
-    - [JSON e AJAX](#json-e-ajax)
+  - [Body](#Body)
+    - [Elementi blocco, elementi inline e liste](#Elementi-blocco-elementi-inline-e-liste)
+    - [Elementi rimpiazzati e non rimpiazzati](#Elementi-rimpiazzati-e-non-rimpiazzati)
+    - [Heading e paragrafi](#Heading-e-paragrafi)
+    - [Gli stili del Testo](#Gli-stili-del-Testo)
+    - [Liste ordinate e non ordinate](#Liste-ordinate-e-non-ordinate)
+    - [Tabelle](#Tabelle)
+    - [Link Ipertestuali](#Link-Ipertestuali)
+      - [Anchor](#Anchor)
+    - [URL relativi e assoluti](#URL-relativi-e-assoluti)
+    - [Link e HTTP](#Link-e-HTTP)
+    - [Immagini](#Immagini)
+    - [Form](#Form)
+  - [HTML5](#HTML5)
+    - [Canvas](#Canvas)
+    - [Video / Audio](#Video--Audio)
+- [CSS](#CSS)
+  - [Regole e struttura](#Regole-e-struttura)
+  - [Selettori](#Selettori)
+  - [Proprietà](#Propriet%C3%A0)
+  - [Ereditarietà](#Ereditariet%C3%A0)
+  - [Conflitti e Cascade](#Conflitti-e-Cascade)
+- [Javascript](#Javascript)
+  - [Oggetti](#Oggetti)
+    - [Costanti oggetto](#Costanti-oggetto)
+    - [Array](#Array)
+    - [Oggetti e Array](#Oggetti-e-Array)
+    - [Stringhe](#Stringhe)
+    - [Tipi valore e tipi riferimento](#Tipi-valore-e-tipi-riferimento)
+  - [Funzioni](#Funzioni)
+    - [Costanti funzione e costruttore Function](#Costanti-funzione-e-costruttore-Function)
+    - [Metodi](#Metodi)
+    - [Costruttori](#Costruttori)
+  - [Operatori](#Operatori)
+  - [Javascript in HTML](#Javascript-in-HTML)
+    - [Browser Objects](#Browser-Objects)
+  - [Modello ad eventi](#Modello-ad-eventi)
+    - [Tabella riassuntiva eventi](#Tabella-riassuntiva-eventi)
+    - [Gestori di evento (event handlers)](#Gestori-di-evento-event-handlers)
+  - [DOM](#DOM)
+    - [Form](#Form-1)
+      - [Text](#Text)
+      - [Validazione form](#Validazione-form)
+- [AJAX](#AJAX)
+  - [Tipica sequenza AJAX](#Tipica-sequenza-AJAX)
+  - [Proprietà di XMLHttpRequest](#Propriet%C3%A0-di-XMLHttpRequest)
+  - [Proprietà ReadyState](#Propriet%C3%A0-ReadyState)
+  - [Proprietà status e statusText](#Propriet%C3%A0-status-e-statusText)
+  - [Proprietà responseText](#Propriet%C3%A0-responseText)
+  - [Callback](#Callback)
+  - [Esempio AJAX](#Esempio-AJAX)
+  - [JSON](#JSON)
+    - [Parser JSON](#Parser-JSON)
+    - [JSON e AJAX](#JSON-e-AJAX)
+- [JDBC e accesso diretto al DB](#JDBC-e-accesso-diretto-al-DB)
+    - [Utilizzo generale CLI](#Utilizzo-generale-CLI)
+  - [ODBC e JDBC](#ODBC-e-JDBC)
+    - [JDBC Driver Manager e Driver](#JDBC-Driver-Manager-e-Driver)
+  - [Uso di JDBC](#Uso-di-JDBC)
+    - [Interfaccia Driver](#Interfaccia-Driver)
+    - [Interfaccia Connection](#Interfaccia-Connection)
+    - [Interfaccia Statement](#Interfaccia-Statement)
+    - [Interfaccia Prepared Statement](#Interfaccia-Prepared-Statement)
+    - [Interfaccia Callable Statement](#Interfaccia-Callable-Statement)
+    - [Interfaccia ResultSet](#Interfaccia-ResultSet)
+    - [Oggetto Statement](#Oggetto-Statement)
+    - [Oggetto PreparedStatement](#Oggetto-PreparedStatement)
+    - [Mapping tipi JAVA - SQL](#Mapping-tipi-JAVA---SQL)
+  - [Esempio di applicazione JDBC](#Esempio-di-applicazione-JDBC)
+  - [SQL Injection](#SQL-Injection)
 
 # URI e URL
 ## URI
@@ -1531,3 +1547,234 @@ Ad esempio in una interazione client-server in cui il cliente vuole trasferire u
 |-|-|
 Sul lato client: Si crea un oggetto JavaScript e si riempiono le sue proprietà con le informazioni necessarie. Si usa **`JSON.stringify()`** per convertire l’oggetto in stringa JSON. Si usa la funzione **`encodeURIComponent()`** per convertire la stringa in un formato utilizzabile in una richiesta HTTP. Si manda la stringa al server mediante **XMLHttpRequest** (stringa viene passata comevariabile con GET o POST) | Si decodifica la stringa JSON e la si trasforma in oggetto Java utilizzando un apposito parser. Si elabora l’oggetto. Si crea un nuovo oggetto Java che contiene dati della risposta. Si trasforma l’oggetto Java in stringa JSON usando il parser suddetto. Si trasmette la stringa JSON al client nel corpo della risposta HTTP: **`response.out.write(strJSON)`**;
 Sul lato client, all’atto della ricezione: Si converte la stringa JSON in un oggetto Javascript usando **`JSON.parse()`**. Si usa liberamente l’oggetto per gli scopi desiderati. | 
+
+# JDBC e accesso diretto al DB
+> Il mapping Object/Relational si occupa di risolvere il potenziale mismatch fra dati mantenuti in un DB relazionale (table-driven) e il loro processamento fatto da oggetti in esecuzione.
+
+**Accesso diretto alle basi di dati**: 
+
+È possibile (ed è di gran lunga l’accesso a DB più tipico) inserire istruzioni SQL direttamente nel codice di un’applicazione scritta in un linguaggio di programmazione. (Esempio: Java JDBC)
+
+Il problema da risolvere è relativo all’integrazione tra i comandi SQL, i quali sono responsabili di realizzare l’accesso al DB, e le normali istruzioni del linguaggio di programmazione.
+
+Due soluzioni possibili:
+
+- **SQL Embedded** o “incastonamento”: SQL viene integrato direttamente all’interno del normale linguaggio di programmazione distinguendolo dalle normali istruzioni tramite un opportuno separatore.   
+  - **Cursori**: strumento che permette a un programma di accedere alle righe di una tabella una alla volta; viene definito su una generica interrogazione.
+  - **SQL dinamico**: permette all’applicazione di definire al momento dell’esecuzione le interrogazioni SQL da effettuare sulla base di dati.
+- **Call Level Interface (CLI)**: l’integrazione con SQL avviene tramite l’invocazione di una opportuna libreria di funzioni che permettono di interagire direttamente con il DBMS. (Esempio: JDBC). Rispetto a SQL Embedded, CLI rappresenta uno strumento più flessibile e meglio integrato con il linguaggio di programmazione, anche se bisogna gestire esplicitamente degli aspetti che con SQL embedded sono demandati al preprocessore SQL.
+
+### Utilizzo generale CLI
+Una applicazione che accede (in lettura e/o scrittura) ad una sorgente di dati ha bisogno di fare le seguenti operazioni:
+1. Aprire una connessione alla sorgente dati
+2. Inviare attraverso la connessione istruzioni (di interrogazione e aggiornamento) alla sorgente dati
+3. Processare i risultati ricevuti dalla sorgente dati in risposta alle istruzioni inviate
+
+Ogni DBMS espone una **API** (Application Program Interface) con cui le le applicazioni possono interagire, comunicando con il DBMS attraverso un **driver**.
+
+## ODBC e JDBC
+> **ODBC**: acronimo di Open Database Connectivity. È un API standard definita da Microsoft nel 1992 che permette l’accesso a dati residenti in DB relazionali in un contesto eterogeneo e distribuito (diversi DBMS: Access, MySQL, DB2, Oracle...)
+
+Permette ai programmatori di formulare richieste SQL che accederanno a dati relativi a DB distinti senza dover conoscere le interfacce proprietarie di ogni singolo DB.
+>**JDBC**: API Java standard definita da Sun Microsystems nel 1996. Rappresenta la controparte Java di ODBC che permette di accedere ai database (locali e remoti) in modo uniforme.
+
+Garantisce accesso ai database in modo indipendente dalla piattaforma. I driver JDBC sono collezioni di classi Java che implementano metodi definiti dalle specifiche JDBC.
+
+### JDBC Driver Manager e Driver
+>**JDBC Driver Manager**: Rappresenta il livello di gestione di JDBC e opera tra l’utente e i driver. Tiene traccia dei driver disponibili e gestisce la creazione di una connessione tra un DB e il driver appropriato. 
+
+>**Driver**: JDBC è un insieme di interfacce; per usare un’interfaccia è necessario fornire un’implementazione per tutti i metodi che la compongono. L’insieme delle classi Java che implementano le interfacce JDBC rappresentano un modulo software chiamato driver JDBC. Ogni DBMS ha il proprio driver rilasciato dal produttore o sviluppato da terze parti. Sono i driver che realizzano la vera comunicazione con il DB. 
+
+I Driver possono essere divisi in due categorie:
+
+1.  **2-tier**: client colloquiano direttamente con DB. L’applicazione interagisce direttamente con il DB mediante un opportuno protocollo di rete, per es. TCP/IP (caso driver JDBC middleware, detto anche Net-Driver), oppure mediante un protocollo di rete proprietario (caso driver JDBC Driver). Si appoggia su un ambiente completamente Java.
+2.  **3-tier**: client comunicano con un middle-tier che accede al DB. Affinché l’applicazione possa interagire con il DB occorre che le chiamate JDBC siano convertite in chiamate API native (caso JDBC/native bridge) o in chiamate ODBC (caso JDBC/ODBC bridge). Non è realmente **portabile** in quanto richiede l’utilizzo di componenti **nativi**. 
+
+Esistono quattro tipi di driver:
+
+1.  **Ponte JDBC-ODBC Driver**: prestazioni scadenti, non indipendente dalla piattaforma, fornito a corredo di JDK.
+2.  **Ponte JDBC-Native Driver**: migliori prestazioni, non indipendente dalla piattaforma
+3.  **Driver Java Puro per Accesso a DB via Middleware**: client indipendente dalla piattaforma, servizi avanzati (caching) ma architettura complessa
+4.  **Driver Java Puro per Accesso Diretto a DB**: client indipendente dalla piattaforma, buone prestazioni
+
+## Uso di JDBC
+
+Accesso a DB con JDBC consiste nel:
+- Caricare la classe del driver JDBC
+- Ottenere una connessione dal driver
+- Eseguire statement SQL
+- Utilizzare risultati delle query
+- Chiudere la connessione e rilasciare strutture dati utilizzate
+- Per la gestione del dialogo con il DB
+
+```java
+Class.forName(“com.ibm.db2.jcc.DB2Driver").newInstance();
+Connection conn = DriverManager.getConnection("jdbc:db2:MYDB");
+Statement stm = conn.createStatement();
+ResultSet res = stm.executeQuery("SELECT * FROM MYTABLE");
+while (res.next()) {
+  String col1 = res.getString("MYCOL1");
+  int col2 = res.getInt("MYCOL2");
+}
+```
+
+### Interfaccia Driver
+>Rappresenta il punto di partenza per ottenere una connessione a un DBMS. La classe che implementa Driver può essere considerata la “factory” per altri oggetti JDBC: ad esempio, oggetti di tipo Connection.
+
+È possibile ottenere un’istanza effettiva della classe `Driver` ricercando la classe con il metodo **`forName`**:
+
+```java
+Driver d = Class.forName(“com.ibm.db2.jcc.DB2Driver”).newInstance();
+```
+
+### Interfaccia Connection
+>Un oggetto di tipo `Connection` rappresenta una connessione attiva con il DB. 
+
+L’interfaccia mette a disposizione una serie di metodi per le operazioni, tra le quali la preparazione di query SQL da inviare tramite oggetti: `Statement`, `Prepared Statement`, `Callable Statement`.
+
+### Interfaccia Statement
+>Gli oggetti di tipo `Statement` possono essere usati per inviare query SQL semplici verso il DBMS sottostante. 
+
+Per query di tipo **SELECT** il risultato è inserito in un oggetto `ResultSet`. Un oggetto `Statement` può essere creato con il metodo `createStatement` di `Connection`.
+
+### Interfaccia Prepared Statement
+>Gli oggetti di tipo `PreparedStatement` possono essere usati per creare **query SQL parametriche** (parametri di tipo IN) e **precompilate** (“prepared”).
+
+Il valore di ciascun parametro non è specificato nel momento in cui lo statement SQL è definito, ma rimpiazzato dal carattere '**?**'. È più efficiente perché una volta che la query è preparata, sarà pre-compilata per usi futuri.
+
+### Interfaccia Callable Statement
+>Gli oggetti di tipo `CallableStatement` possono essere usati per definire query parametriche con parametri di tipo **IN**, **OUT** e **INOUT**. Permettono di eseguire una invocazione a una **stored procedure** memorizzata sul server DB.
+
+### Interfaccia ResultSet
+>L’oggetto ResultSet è il risultato di una query di selezione (**SELECT**).Rappresenta una tabella composta da righe (gli elementi selezionati) e colonne (gli attributi richiesti).
+
+### Oggetto Statement
+Un oggetto `Statement` fornisce tre metodi per
+eseguire una query SQL:
+- (StatementObj.) **`executeQuery`(stmt SQL)**, per statement che generano un unico `ResultSet` (SELECT)
+- (StatementObj.) **`executeUpdate`(stmt SQL)**, per statement di modifica (UPDATE, INSERT, ecc.)
+- (StatementObj.) **`execute`(stmt SQL)**, per statement che generano più di un risultato o più di un contatore di aggiornamento 
+
+### Oggetto PreparedStatement
+>Usato quando la query SQL prende uno o più parametri come input, o quando una query semplice deve essere eseguita più volte. L’interfaccia PreparedStatement estende l’interfaccia `Statement` ereditandone tutte le funzionalità. In più sono presenti metodi per la gestione dei parametri. I parametri vengono poi settati mediante il metodo (StatementObj.) **`setXXX(n,value)`**. La query pre-compilata viene eseguita mediante i metodi `executeQuery()`, `executeUpdate()` o `execute()` senza bisogno di passare alcun parametro!
+
+Esempio: 
+```java
+PreparedStatement ps = con.prepareStatement("UPDATE MyTable SET a = ? WHERE b = ?");
+```
+Per istanziare i parametri “**?**” (necessariamente prima dell’esecuzione):
+```java
+ps.setInt(1, 20);
+ps.setInt(2,100);
+```
+
+### Mapping tipi JAVA - SQL 
+
+| SQL | JAVA |
+-|-
+CHAR |  String
+VARCHAR | String
+LONGVARCHAR| String
+NUMERIC| `java.math.BigDecimal`
+DECIMAL| `java.math.BigDecimal`
+BIT| boolean
+TINYINT| byte
+SMALLINT| short
+INTEGER| int
+BIGINT| long
+REAL| float
+FLOAT| double
+DOUBLE| double 
+BINARY| byte[]
+VARBINARY| byte[]
+LONGVARBINARY| byte[]
+DATE| `java.sql.date`
+TIME| `java.sql.Time`
+TIMESTAMP| `java.sql.Timestamp`
+
+## Esempio di applicazione JDBC
+1.  **Importazione dei package**:
+```java
+import java.sql.*; //package JDBC
+```
+2.  **Registrazione Driver JDC**:
+```java
+class Esempio {
+  public static void main(String argv[]) {
+  try {
+    // caricamento e registrazione driver
+    Class.forName(“com.ibm.db2.jcc.DB2Driver").newInstance();
+```
+3.  **Apertura connessione DB**:
+```java
+Connection con = null;
+// URL jdbc:db2:database_alias
+String url = "jdbc:db2://diva.disi.unibo.it:50000/sample";
+if (argv.length == 2) {
+  String userid = argv[0];
+  String passwd = argv[1];
+  // connessione con id/passwd forniti dall’utente
+  con = DriverManager.getConnection(url, userid, passwd);
+}
+else {
+  System.out.println("\nUsage: java Esempio username password\n");  
+  System.exit(0);
+}
+```
+4.  **Creazione oggetto `Statement`**:
+```java
+// interrogazione table EMPLOYEE 
+System.out.println("Retrieve some data from the database");
+Statement stmt = con.createStatement();
+```
+5. **Esecuzione query** 6. **Utilizzo oggetto `ResultSet`**   
+```java
+ResultSet rs = stmt.executeQuery("SELECT * FROM DB2INST1.EMPLOYEE");
+System.out.println("Received results:");
+// mostra i risultati
+// rs.next() = “false” se non ci sono più righe risultato
+while (rs.next()) {
+  String number = rs.getString(1);
+  String name = rs.getString(2);
+  System.out.print(" empno= " + number);
+  System.out.print(" firstname= " + name);
+  System.out.print("\n");
+}
+```
+7.  **Chiusura oggetti ResultSet e Statement**
+```java
+rs.close();
+stmt.close();
+// Esecuzione di altre istruzioni SQL
+// aggiorna il database… prova ad aggiornarlo! 
+System.out.println("\n\nUpdate the database... ");
+stmt = con.createStatement();
+int rowsUpdated = stmt.executeUpdate("UPDATE DB2INST1.EMPLOYEE SET firstname = 'SHILI’ WHERE empno = '000010'");
+System.out.print("Changed "+rowsUpdated);
+if (1 == rowsUpdated) 
+  System.out.println(" row.");
+else 
+  System.out.println(" rows.");
+stmt.close(); // chiude Statement
+```
+8. **Chiusura connessione**:
+```java
+// chiude Connection
+  con.close();
+    } // try
+    catch( Exception e ) {
+      e.printStackTrace();
+    }
+  } // main
+} // classe
+```
+
+## SQL Injection
+È una tecnica che sfrutta la vulnerabilità a livello di sicurezza dello strato DB di una applicazione. Tale vulnerabilità è presente quando i dati di input
+dell’utente sono: 
+- Filtrati in modo incorretto per la verifica di caratteri literal escape nelle stringhe
+- Non sono fortemente “tipizzati” e/o controllati i vincoli di tipo.
+
+Per proteggere le nostre applicazioni dall’SQL injection, i dati di input dell’utente NON devono essere direttamente incastonati all’interno di Statement SQL. A prevenzione del problema, l’interfaccia
+**`PreparedStatement`** permette di gestire in modo
+corretto anche l’inserimenti di dati “ostili”.
