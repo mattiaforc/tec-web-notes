@@ -115,6 +115,12 @@
     - [Mapping tipi JAVA - SQL](#Mapping-tipi-JAVA---SQL)
   - [Esempio di applicazione JDBC](#Esempio-di-applicazione-JDBC)
   - [SQL Injection](#SQL-Injection)
+- [Metodologie di Progettazione della Persistenza: Approccio “forza bruta”, Pattern DAO, Framework ORM e Hibernate](#Metodologie-di-Progettazione-della-Persistenza-Approccio-forza-bruta-Pattern-DAO-Framework-ORM-e-Hibernate)
+  - [Conflitto di impedenza](#Conflitto-di-impedenza)
+  - [Brute force](#Brute-force)
+  - [Pattern DAO (Data Access Object)](#Pattern-DAO-Data-Access-Object)
+    - [Esempio di DAO](#Esempio-di-DAO)
+  - [Retrive (risoluzione del conflitto di impedenza)](#Retrive-risoluzione-del-conflitto-di-impedenza)
 
 # URI e URL
 ## URI
@@ -1778,3 +1784,146 @@ dell’utente sono:
 Per proteggere le nostre applicazioni dall’SQL injection, i dati di input dell’utente NON devono essere direttamente incastonati all’interno di Statement SQL. A prevenzione del problema, l’interfaccia
 **`PreparedStatement`** permette di gestire in modo
 corretto anche l’inserimenti di dati “ostili”.
+
+# Metodologie di Progettazione della Persistenza: Approccio “forza bruta”, Pattern DAO,  Framework ORM e Hibernate
+
+## Conflitto di impedenza
+>Definito anche come “*disaccoppiamento di impedenza*” (o impedance mismatch) tra base di dati e linguaggio. 
+
+| | Linguaggi | SQL |
+-|-|-|
+**Impedance mismatch**: | operazioni su singole variabili o oggetti | operazioni su relazioni (insiemi di ennuple)
+**Differenze di accesso ai dati e correlazione** | dipende dal paradigma e dai tipi disponibili; ad esempio scansione di liste o “navigazione” tra oggetti | join (ottimizzabile)
+**Differenze sui tipi di dato primitivi** | numeri, stringhe, booleani etc... | CHAR, VARCHAR, DATE, ETC...
+**Differenze sui costruttori di tipo** | dipende dal paradigma | relazioni e ennuple
+
+In più:
+- **OID** (trasparenti al programmatore) vs. chiavi primarie (visibili e manipolabili)
+- Riferimenti vs. chiavi esterne
+- **Ereditarietà** (senza controparte nel mondo relazionale)
+
+Dal modello concettuale si può derivare (una prima
+versione di):
+1.  Classi che implementano la **logica applicativa** (diciamo che queste classi implementano il **modello di dominio**, o più semplicemente il modello).
+2.  Classi facade che offrono le operazioni (metodi) dell’applicazione.
+3.  Schema relazionale per memorizzare i dati.  
+
+
+## Brute force 
+>È la tecnica più semplice per gestire la persistenza. C'è un forte accoppiamento con la sorgente dati. Consiste nello scrivere dentro le classi del modello un insieme di metodi che implementano le operazioni CRUD.
+
+**CRUD**:
+- **Create**: inserimento di una tupla (che rappresenta un oggetto) nel database (INSERT)
+- **Retrieve**: ricerca di una tupla secondo un qualche criterio di ricerca (SELECT)
+- **Update**: aggiornamento di una tupla nel database (UPDATE)
+- **Delete**: eliminazione di una tupla nel database (DELETE)
+
+Per ogni classe `MyC` che rappresenta una entità del dominio, si definiscono:
+- un metodo **`doRetrieveByKey(X key)`** che restituisca un oggetto istanza di `MyC` i cui dati sono letti dal database, tipicamente da una tabella che è stata derivata dalla stessa classe del modello di dominio che ha dato origine a `MyC`. Recupera i dati per chiave.
+- un metodo **`saveOrUpdate(...)`** che salva i dati dell'oggetto corrente nel database. Il metodo esegue una istruzione SQL update o insert a seconda che l'oggetto corrente esista già o meno nel database.
+- uno o più metodi **`doRetrieveByCond(...)`** che restituiscono una collezione di oggetti istanza della classe `MyC` che soddisfano una qualche condizione (basata sui parametri del metodo)
+- un metodo **`doDelete(...)`** che cancella dal database i dati dell'oggetto corrente.
+
+## Pattern DAO (Data Access Object)
+La soluzione Forza bruta non è particolarmente conveniente poichè l'accoppiamento tra la sorgente dati e le classi del modello è molto forte.
+Una soluzione "*naturale*" è quella di affidare le responsabilità di interagire con il database ad opportune classi. 
+>Il pattern DAO è uno degli standard “J2EE design patterns”; rappresenta un possibile modo di separare: logica di **business** (es: Servlet, JSP, ...) a logica di **persistenza** (es: r/w su DB, ...). Solo gli oggetti previsti dal pattern DAO hanno il permesso di “vedere” il DB ed espongono metodi di accesso per tutti gli altri componenti.
+
+I valori scambiati tra DB e il resto dell’applicazione sono racchiusi in oggetti detti **Data Transfer Object (DTO)** composti da:
+- campi privati per contenere i dati da leggere/scrivere su db
+- metodi getter e setter per accedere dall’esterno a tali campi
+- metodi di utilità (confronto, stampa, etc...)
+
+Le operazioni che coinvolgono tali oggetti sono raggruppati in interfacce che definiscono i Data Access Object (DAO) disponibili: metodi CRUD ed altri. Le implementazioni di tali interfacce (spesso indicate come oggetti DAO, per brevità) permettono l’effettivo accesso al database. 
+
+Gli oggetti DAO non sono istanziati direttamente dai componenti, ma possono essere ottenuti attraverso **metodi factory**.
+
+Una unica **factory astratta** che fornisce specifiche per le **factory concrete** ed espone un metodo creazionale parametrico per ottenere factory concrete. Una factory concreta per ogni tipo di DB supportato permette di ottenere oggetti DAO appropriati al corrispondente tipo di DB e può gestire aspetti quali ottenimento della connessione, autenticazione, ...
+
+### Esempio di DAO
+Per ogni classe Entità del modello di dominio creiamo (in un opportuno package) una interfaccia DAOEntità con (le signature dei) metodi che realizzano le operazioni CRUD. Queste interface sono implementate da classi (organizzate in opportuni package). Questa scomposizione permette maggiore flessibilità.
+
+*UML d'esempio*:
+![](Pictures/4-02-1.png)
+
+```java
+public interface ProdottoDAO {
+  public List<Prodotto> doRetrieveAll() throws PersistenceException;
+  public Prodotto doRetriveByKey(String codice) throws PersistenceException;
+  public void saveOrUpdate(Prodotto prodotto) throws PersistenceException;
+  public void delete(Prodotto prodotto) throws PersistenceException;
+// eventuali altri doRetriveBy...
+}
+```
+
+```java
+public class ProdottoDAOImpl implements ProdottoDAO {
+  public List<Prodotto> doRetrieveAll() throws PersistenceException {
+    Connection connection = null;
+    List<Prodotto> prodotti;
+    ...
+    try {
+      ...
+    } catch (SQLException sqle) {
+      throw new PersistenceException(sqle);
+    } finally {
+      ...
+    }
+    return prodotti;
+  }
+...
+}
+```
+
+Abbiamo classi per il modello, classi per la persistenza, classi di utilità
+- **classi del modello** nel package `modello`
+- **interfacce DAO** nel package `persistenza`
+- **implementazioni (dbms dependant) dei DAO** in package `persistenza.db2`
+- classi di utilità nel package `util`
+
+Le classi del modello implementano le entità del modello concettuale, ed è bene che rispettino le seguenti convenzioni:
+- tutte le proprietà devono essere private
+- per ogni proprietà: metodi setter e getter pubblici
+- costruttore no-arg visibile
+
+Una classe che rispetta queste convenzioni viene
+chiamata **java bean**.
+
+```java
+package modello;
+import java.util.*;
+import persistenza.*;
+
+public class FacadeImpl implements Facade {
+  private ClienteDAO clienteDao;
+  ...
+  public FacadeImpl() {
+    clienteDao = new ClienteDAOImpl();
+  }
+  public void inserisciClienteNellaAnagrafica(Cliente cliente) throws ClienteException {
+    try {
+      clienteDao.saveOrUpdate(cliente);
+    } catch (PersistenceException e) {
+      throw new ClienteException("Exception in ClientiFacade while creating cliente.");
+    }
+  }
+  public List<Cliente> anagraficaClienti(){
+    try {
+      return clienteDao.doRetrieveClienteAll();
+    } catch (PersistenceException e) {
+      throw new ClienteException("Exception in ClientiFacade while retrieving cliente.", e);
+    }
+  }
+  public Cliente trovaClientePerCodice(String codiceCliente){
+    try {
+      return clienteDao.doRetrieveClienteByCodice(codiceCliente);
+    } catch (PersistenceException e) {
+      throw new ClienteException("Exception in ClientiFacade while retrieving cliente"+ codiceCliente +, e);
+    }
+  }
+  ...
+}
+```
+
+## Retrive (risoluzione del conflitto di impedenza)
+> **Retrieve**: dal DB agli oggetti (ricostruzione degli oggetti a partire da dati persistenti). Il problema principale nel ricostruire oggetti a partire dalla base di dati consiste nel ricostruire i riferimenti. Le forze in gioco sono chiavi esterne contro riferimenti e join (operazione "non direzionale") contro navigazioni.
