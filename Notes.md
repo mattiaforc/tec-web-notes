@@ -88,6 +88,22 @@
     - [Form](#Form-1)
       - [Text](#Text)
       - [Validazione form](#Validazione-form)
+- [Modello Web Statico/Dinamico](#Modello-Web-StaticoDinamico)
+  - [CGI](#CGI)
+    - [Configurazione Web Server](#Configurazione-Web-Server)
+    - [Parametri GET](#Parametri-GET)
+    - [Parametri POST](#Parametri-POST)
+    - [Environment](#Environment)
+  - [Dal modello statico a quello dinamico](#Dal-modello-statico-a-quello-dinamico)
+  - [Application Server](#Application-Server)
+    - [Stato](#Stato)
+      - [Tipi di stato](#Tipi-di-stato)
+    - [Sessione](#Sessione)
+  - [Distribuzione dei servizi](#Distribuzione-dei-servizi)
+  - [Replicazione dei servizi](#Replicazione-dei-servizi)
+    - [Web Server](#Web-Server)
+    - [Applicazione](#Applicazione)
+  - [Applicazioni multi-tier](#Applicazioni-multi-tier)
 - [AJAX](#AJAX)
   - [Tipica sequenza AJAX](#Tipica-sequenza-AJAX)
   - [Proprietà di XMLHttpRequest](#Propriet%C3%A0-di-XMLHttpRequest)
@@ -1294,6 +1310,142 @@ Generalmente si valida un form in due momenti:
 </form>
 ```
 </details>
+
+# Modello Web Statico/Dinamico
+> **Modello statico**: Il modello che abbiamo analizzato finora, basato sul concetto di ipertesto distribuito, ha una natura essenzialmente statica. Anche se l’utente può percorrere dinamicamente l’ipertesto in modi molto diversi, l’insieme dei contenuti è prefissato staticamente: le pagine vengono preparate staticamente a priori, non esistono contenuti composti dinamicamente in base all’interazione con l’utente. È un modello semplice, potente, di facile implementazione efficiente, ma presenta evidenti limiti.
+
+Esempio di ricerca con form GET:
+```html
+<html>
+  <head>
+    <title> Ricerca dinosauri </title>
+  </head>
+  <body>
+    <p>Enciclopedia dei dinosauri - Ricerca</p>
+    <form method="GET" action="http://www.dino.it/cerca">
+      <p>Nome del dinosauro
+        <input type="text" name="nomeTxt" size="20">
+        <input type="submit" value="Cerca" name="cercaBtn">
+      </p>
+    </form>
+  </body>
+</html>
+```
+Web server non è in grado di interpretare immediatamente questa chiamata (URL con query) perché **richiede l’esecuzione dinamica** di un’applicazione legata al particolare contesto. È quindi necessaria un’**estensione specifica**: un programma scritto appositamente per l’enciclopedia che interpreti i parametri passati nel GET, cerchi nel file system la pagina e la restituisca al Web server per l’invio al client.
+
+## CGI
+La prima soluzione proposta per risolvere questo problema prende il nome di **Common Gateway Interface (CGI)**, già presente fino da HTTPv1.0. 
+>CGI è uno standard per interfacciare applicazioni esterne con Web server. Un programma CGI viene eseguito dinamicamente in risposta alla chiamata e produce output che costituisce la risposta alla richiesta http (informazione dinamica). Può essere scritto in qualunque linguaggio: ad esempio in C o in un linguaggio di script (spesso PHP o Perl) o in un qualche linguaggio ibrido (es. Python).
+
+Le operazioni si svolgono nel seguente ordine:
+1. Il client, tramite HTTP, invia al server la richiesta di eseguire un programma CGI con alcuni parametri e dati in ingresso
+2. Il server, attraverso l'**interfaccia standard CGI(accordo standardizzato)**, chiama il programma passandogli i parametri e i dati inviati dal client 
+3. Eseguite le operazioni necessarie, il programma CGI rimanda al server i dati elaborati (pagina HTML), sempre facendo uso dell'interfaccia CGI 
+4. Il server invia al client i dati elaborati dal programma CGI tramite protocollo HTTP 
+
+I programmi CGI e il server comunicano in quattro modi (specificati nell’interfaccia standard CGI):
+1.  **Variabili di ambiente** del sistema operativo
+2.  **Parametri sulla linea di comandi**: programma CGI viene lanciato in un processo pesante (si pensi a shell di sistema operativo che interpreta i parametri passati, ad esempio in metodo GET)
+3.  **Standard Input** (usato con il metodo POST)
+4.  **Standard Output**: per restituire al server la pagina HTML da inviare al client
+
+Il programma CGI elabora i dati in ingresso ed emette
+un output per il client in attesa di risposta. Per passare i dati al server il programma CGI usa **`stdout`**.
+
+### Configurazione Web Server
+Se arriva URL `www.dino.it/cgi-bin/cerca server` deve rendersi conto che cerca non è un documento HTML ma un programma CGI. Perché ciò accada è necessario che:
+- I programmi CGI siano tutti in un'apposita directory
+- Nella configurazione del server sia specificato il path ove trovare i programmi CGI e l'identificatore che indica che è richiesta l'esecuzione di una applicazione.
+
+### Parametri GET
+>Con il metodo GET il server passa il contenuto della form al programma CGI come se fosse da linea di comando di una shell.
+
+```http
+www.dino.it/cerca?nomeTxt=diplodocus&cercaBtn=Cerca
+```
+### Parametri POST
+>Come abbiamo già visto, usando POST non viene aggiunto nulla alla URL specificata da ACTION. I dati del form, contenuti nell’header HTTP, vengono inviati al programma CGI tramite standard input. In questo modo si possono inviare dati lunghi a piacimento, senza i limiti di GET.
+
+### Environment
+
+Prima di chiamare il programma CGI, il Web server imposta alcune variabili di sistema corrispondenti ai principali header HTTP, ad esempio:
+- **REQUEST_METHOD**: metodo usato dalla form
+- **QUERY_STRING**: parte di URL che segue il "?"
+- **REMOTE_HOST**: host che ha inviato la richiesta
+- **CONTENT_TYPE**: tipo MIME dell’informazione contenuta nel body della richiesta (nel POST)
+- **CONTENT_LENGTH**: lunghezza dei dati inviati
+- **HTTP_USER_AGENT**: nome e versione del browser usato dal client 
+
+## Dal modello statico a quello dinamico
+Una soluzione ragionevole ai vari limiti del modello statico è quella di separare gli aspetti di contenuto da quelli di presentazione. Ad esempio, utilizziamo un database relazionale per memorizzare le informazioni relative ad ogni entità del modello (dinosauri).
+
+Realizziamo alcuni programmi CGI che generano dinamicamente l’enciclopedia:
+- *scheda*: crea una pagina con la scheda di un determinato dinosauro
+- *indice*: crea la pagina di indice per specie (tassonomia)
+- *alfabetico*: crea l’indice alfabetico
+- *cerca*: restituisce una pagina con i link alle schede che contengono il testo inserito dall’utente
+
+Tutti e 4 i programmi usano il DB per ricavare le informazioni utili per la costruzione della pagina. In questo modo la gestione dell’enciclopedia è sicuramente più semplice: basta inserire un record nel database per aggiungere una nuova specie. L’indice tassonomico e quello alfabetico si aggiornano automaticamente ed è anche possibile cambiare agevolmente layout di tutte le pagine, modificando un template vuoto che poi viene riempito con i dati a seconda del dinosauro.
+
+L’architettura che abbiamo appena visto presenta numerosi vantaggi ma soffre anche di diversi problemi. 
+- Di **prestazioni**: ogni volta che viene invocata una CGI si crea un **processo** che viene **distrutto** alla fine dell’elaborazione
+- Le CGI, soprattutto se scritte in C, possono essere poco robuste (ad esempio **errore bloccante**)
+- Ogni programma CGI deve reimplementare tutta una serie di parti comuni (**mancanza di moduli di base accessibili a tutti i programmi lato server**)
+
+## Application Server
+
+>La soluzione migliore è quella di realizzare un **contenitore** in cui far “vivere” le funzioni server-side. Il contenitore si preoccupa di fornire i servizi di cui le applicazioni hanno bisogno. Si ha così una soluzione **modulare** in cui le funzionalità ripetitive vengono portate a fattor comune. Un ambiente di questo tipo prende il nome di **application server**.
+
+Due tecnologie storicamente molto diffuse nell’ambito
+degli application server sono: .NET di Microsoft ed evoluzioni e Java J2EE. Altre soluzioni hanno una struttura più semplice e non sono application server a tutti gli effetti (si parla di moduli di estensione del Web server – comunque interessanti per applicazioni Web a rapida prototipazione e basso costo):
+- PHP (molto diffuso e di semplice utilizzo)
+- Le “vecchie” tecnologie ISAPI e ASP di Microsoft
+- Quelle basate su linguaggio Ruby (ruby on rails)
+
+### Stato
+L’enciclopedia dei dinosauri è un’applicazione **stateless** poichè il server e i programmi CGI non hanno necessità di tener traccia delle chiamate precedenti.
+L'interazione tra client e server può essere di due tipi:
+- >**Stateful**:  esiste stato dell’interazione e quindi l’nesimo messaggio può essere messo in relazione con gli n-1 precedenti. Non tutte le applicazioni possono fare a meno dello
+stato: In generale, tutte le volte in cui abbiamo bisogno di personalizzazione delle richieste Web, possiamo beneficiare di interazione stateful.
+
+- >**Stateless**: non si tiene traccia dello stato, ogni messaggio è indipendente dagli altri. In termini generali, un’interazione stateless è *“feasible”* senza generare grossi problemi solo se protocollo applicativo è progettato con **operazioni idempotenti**.
+
+#### Tipi di stato
+- >**Stato di esecuzione** (insieme dei dati parziali per una elaborazione): rappresenta un avanzamento in una esecuzione; per sua natura è uno stato volatile; può essere mantenuto in memoria lato server come stato di uno o più oggetti
+- >**Stato di sessione** (insieme dei dati che caratterizzano una interazione con uno specifico utente): la sessione viene gestita di solito in modo unificato attraverso l’uso di istanze di oggetti specifici (supporto a oggetti sessione)
+- >**Stato informativo persistente** (ad esempio gli ordini inseriti da un sistema di eCommerce): viene normalmente mantenuto in una struttura persistente come un database
+
+### Sessione
+La sessione rappresenta lo stato associato ad una sequenza di pagine visualizzate da un utente. Contiene tutte le informazioni necessarie durante l’esecuzione, quindi: Informazioni di sistema, IP di provenienza, lista delle pagine visualizzate, ..., informazioni di natura applicativa, nome e cognome, username, quanti e quali prodotti ha inserito nel carrello per un acquisto, ... Lo scope di sessione è dato dal tempo di vita della interazione utente (**lifespan**) e dall'**accessibilità**: usualmente concesso alla richiesta corrente e a tutte le richieste successive provenienti dallo stesso processo browser.
+
+Lo stato di sessione deve presentare i seguenti requisiti:
+- Deve essere condiviso da Client e Server
+- È associato a una o più conversazioni effettuate da un singolo utente
+- Ogni utente possiede il suo singolo stato
+
+Ci sono due tecniche di base per gestire lo stato, non necessariamente alternative ma integrabili:
+1.  Utilizzo del meccanismo dei **cookie** (storage lato cliente)
+2.  Gestione di uno stato sul server per ogni utente collegato (**sessione server-side**)
+
+## Distribuzione dei servizi
+La struttura a 3 tier (Web Server, Application Server, DataBase Server) rispecchia i 3 principali servizi che realizzano un sistema Web. Questi 3 servizi possono risiedere sullo stesso HW oppure essere divisi su macchine separate (**distribuzione verticale** dell’architettura).
+
+Orizzontalmente ad ogni livello è possibile replicare il servizio su diverse macchine. Si parla in questo caso di **distribuzione orizzontale**. Essendo una distribuzione per replicazione è possibile implementare politiche per la gestione della **fault tolerance** e anche del **bilanciamento di carico** a fine di maggiori performance.
+
+## Replicazione dei servizi
+### Web Server
+Web server è **stateless** per la natura del protocollo HTTP; per questo, molto facile da replicare. Il fatto che **IP è embedded in URL** può essere gestito attraverso diverse soluzioni sia hardware che software. Si possono applicare politiche di **load balancing** con diverse euristiche usando dispositivi appositi. 
+
+### Applicazione
+Prevalentemente si usa uno stato di sessione. Può accadere però che application server utilizzi oggetti o componenti con stato per motivi di performance (**cache**) o altre necessità specifiche. Alcuni framework disponibili sul mercato permettono replicazione attraverso **tecniche di clustering** (ne daremo cenni nella secondssa parte del corso); altri framework non sono in grado di replicare orizzontalmente. Se si mantiene lo stato concentrato all’interno della sessione e la sessione viene gestita interamente attraverso cookie, è possibile realizzare un framework applicativo completamente stateless lato server, ottenendo così realizzazione più semplice e primitiva di configurazione completamente replicabile in modo orizzontale.
+
+## Applicazioni multi-tier
+>È molto utile separare logicamente le funzioni necessarie in una struttura multilivello (multi-tier) al fine di fornire astrazioni via via più complesse e potenti a partire da funzionalità più elementari. Nel tempo si è affermata una classificazione indipendente dalla implementazione tecnologica, basata su una struttura a 4 livelli principali; non fornisce dettagli implementativi, non specifica quali moduli debbano essere implementati client-side o server-side, né nessuna altra specifica tecnica: è una architettura essenzialmente logico-funzionale.
+
+1.  **Presentation**: Livello di presentazione si occupa della visualizzazione dei risultati generati secondo il percorso definito nel flusso sottostante. Il livello di presentazione ha il compito di interpretare i dati del business flow e generare l’interfaccia grafica per la visualizzazione dei contenuti (**rendering**). Questo permette di avere facilmente diverse modalità/tipologie di presentazione degli stessi dati (esempio italiano/inglese).
+2.  **Business Flow**: A questo livello vengono implementati i flussi delle diverse conversazioni che interagiscono per comporre una applicazione. Una conversazione è realizzata da un insieme di pagine collegate in un **flusso di successive chiamate**. Il business flow raccoglie l’insieme delle chiamate necessarie per realizzare una conversazione. <br>**Ogni chiamata deve**: ▪ Caricare i parametri in ingresso ▪ Chiamare le funzioni di business logic necessarie per effettuare l’elaborazione ▪ Generare l’output che dovrà essere visualizzato.
+3.  **Business Logic**: La logica di business contiene le caratteristiche delle applicazioni e dipende sia dal modello dei dati che, ancora più rilevante, dalle logiche di utilizzo degli stessi. È l’insieme di tutte le funzioni offerte; si appoggia sui servizi per implementare i diversi algoritmi di risoluzione e provvedere alla generazione dei dati di output. Così modellata, business logic presenta un **elevato grado di riuso**.
+4.  **Services**: Servizi devono fornire tutte le funzionalità base (API) necessarie per l’implementazione rapida ed efficace della logica di business, dalla gestione della concorrenza al supporto alle transazioni, dall’interfacciamento ai db al monitoraggio/controllo/gestione delle performance. I servizi realizzano le funzioni di base per sviluppo di applicazioni: **Accesso e gestione risorse**, **gestione transazioni**, **gestione sicurezza**, **accesso e gestione delle sorgenti dati**.
 
 # AJAX
 L’utilizzo di **DHTML** (JavaScript/Eventi + DOM + CSS) delinea un nuovo modello per applicazioni Web. Modello a eventi simile a quello delle applicazioni tradizionali.
