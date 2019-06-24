@@ -67,6 +67,38 @@
   - [Proprietà](#Propriet%C3%A0)
   - [Ereditarietà](#Ereditariet%C3%A0)
   - [Conflitti e Cascade](#Conflitti-e-Cascade)
+- [Modello Web Statico/Dinamico](#Modello-Web-StaticoDinamico)
+  - [CGI](#CGI)
+    - [Configurazione Web Server](#Configurazione-Web-Server)
+    - [Parametri GET](#Parametri-GET)
+    - [Parametri POST](#Parametri-POST)
+    - [Environment](#Environment)
+  - [Dal modello statico a quello dinamico](#Dal-modello-statico-a-quello-dinamico)
+  - [Application Server](#Application-Server)
+    - [Stato](#Stato)
+      - [Tipi di stato](#Tipi-di-stato)
+    - [Sessione](#Sessione)
+  - [Distribuzione dei servizi](#Distribuzione-dei-servizi)
+  - [Replicazione dei servizi](#Replicazione-dei-servizi)
+    - [Web Server](#Web-Server)
+    - [Applicazione](#Applicazione)
+  - [Applicazioni multi-tier](#Applicazioni-multi-tier)
+- [Servlet](#Servlet)
+  - [Request](#Request)
+    - [Request URL e metodi](#Request-URL-e-metodi)
+  - [Response](#Response)
+  - [Ciclo di vita delle Servlet](#Ciclo-di-vita-delle-Servlet)
+    - [Metodi per il controllo](#Metodi-per-il-controllo)
+  - [Servlet e multithreading](#Servlet-e-multithreading)
+  - [Deployment](#Deployment)
+    - [WAR (Web ARchives) e configurazione Servlet](#WAR-Web-ARchives-e-configurazione-Servlet)
+  - [Servlet Context](#Servlet-Context)
+    - [Attributi di contesto](#Attributi-di-contesto)
+  - [Gestione dello stato (Sessione)](#Gestione-dello-stato-Sessione)
+    - [Session ID e URL rewriting](#Session-ID-e-URL-rewriting)
+  - [Scoped objects](#Scoped-objects)
+    - [Risorse WEB](#Risorse-WEB)
+    - [Forward](#Forward)
 - [Javascript](#Javascript)
   - [Oggetti](#Oggetti)
     - [Costanti oggetto](#Costanti-oggetto)
@@ -88,22 +120,6 @@
     - [Form](#Form-1)
       - [Text](#Text)
       - [Validazione form](#Validazione-form)
-- [Modello Web Statico/Dinamico](#Modello-Web-StaticoDinamico)
-  - [CGI](#CGI)
-    - [Configurazione Web Server](#Configurazione-Web-Server)
-    - [Parametri GET](#Parametri-GET)
-    - [Parametri POST](#Parametri-POST)
-    - [Environment](#Environment)
-  - [Dal modello statico a quello dinamico](#Dal-modello-statico-a-quello-dinamico)
-  - [Application Server](#Application-Server)
-    - [Stato](#Stato)
-      - [Tipi di stato](#Tipi-di-stato)
-    - [Sessione](#Sessione)
-  - [Distribuzione dei servizi](#Distribuzione-dei-servizi)
-  - [Replicazione dei servizi](#Replicazione-dei-servizi)
-    - [Web Server](#Web-Server)
-    - [Applicazione](#Applicazione)
-  - [Applicazioni multi-tier](#Applicazioni-multi-tier)
 - [AJAX](#AJAX)
   - [Tipica sequenza AJAX](#Tipica-sequenza-AJAX)
   - [Proprietà di XMLHttpRequest](#Propriet%C3%A0-di-XMLHttpRequest)
@@ -131,6 +147,7 @@
     - [Mapping tipi JAVA - SQL](#Mapping-tipi-JAVA---SQL)
   - [Esempio di applicazione JDBC](#Esempio-di-applicazione-JDBC)
   - [SQL Injection](#SQL-Injection)
+  - [Connection Pool e DataSource](#Connection-Pool-e-DataSource)
 - [Metodologie di Progettazione della Persistenza: Approccio “forza bruta”, Pattern DAO, Framework ORM e Hibernate](#Metodologie-di-Progettazione-della-Persistenza-Approccio-forza-bruta-Pattern-DAO-Framework-ORM-e-Hibernate)
   - [Conflitto di impedenza](#Conflitto-di-impedenza)
   - [Brute force](#Brute-force)
@@ -904,7 +921,419 @@ Il CSS assegna un peso a ciascun blocco di regole; In caso di conflitto vince qu
 3.  **Ordine di dichiarazione**: se esistono due dichiarazioni con ugual specificità e origine vince quella fornita per ultima.
 
 
+# Modello Web Statico/Dinamico
+> **Modello statico**: Il modello che abbiamo analizzato finora, basato sul concetto di ipertesto distribuito, ha una natura essenzialmente statica. Anche se l’utente può percorrere dinamicamente l’ipertesto in modi molto diversi, l’insieme dei contenuti è prefissato staticamente: le pagine vengono preparate staticamente a priori, non esistono contenuti composti dinamicamente in base all’interazione con l’utente. È un modello semplice, potente, di facile implementazione efficiente, ma presenta evidenti limiti.
 
+Esempio di ricerca con form GET:
+```html
+<html>
+  <head>
+    <title> Ricerca dinosauri </title>
+  </head>
+  <body>
+    <p>Enciclopedia dei dinosauri - Ricerca</p>
+    <form method="GET" action="http://www.dino.it/cerca">
+      <p>Nome del dinosauro
+        <input type="text" name="nomeTxt" size="20">
+        <input type="submit" value="Cerca" name="cercaBtn">
+      </p>
+    </form>
+  </body>
+</html>
+```
+Web server non è in grado di interpretare immediatamente questa chiamata (URL con query) perché **richiede l’esecuzione dinamica** di un’applicazione legata al particolare contesto. È quindi necessaria un’**estensione specifica**: un programma scritto appositamente per l’enciclopedia che interpreti i parametri passati nel GET, cerchi nel file system la pagina e la restituisca al Web server per l’invio al client.
+
+## CGI
+La prima soluzione proposta per risolvere questo problema prende il nome di **Common Gateway Interface (CGI)**, già presente fino da HTTPv1.0. 
+>CGI è uno standard per interfacciare applicazioni esterne con Web server. Un programma CGI viene eseguito dinamicamente in risposta alla chiamata e produce output che costituisce la risposta alla richiesta http (informazione dinamica). Può essere scritto in qualunque linguaggio: ad esempio in C o in un linguaggio di script (spesso PHP o Perl) o in un qualche linguaggio ibrido (es. Python).
+
+Le operazioni si svolgono nel seguente ordine:
+1. Il client, tramite HTTP, invia al server la richiesta di eseguire un programma CGI con alcuni parametri e dati in ingresso
+2. Il server, attraverso l'**interfaccia standard CGI(accordo standardizzato)**, chiama il programma passandogli i parametri e i dati inviati dal client 
+3. Eseguite le operazioni necessarie, il programma CGI rimanda al server i dati elaborati (pagina HTML), sempre facendo uso dell'interfaccia CGI 
+4. Il server invia al client i dati elaborati dal programma CGI tramite protocollo HTTP 
+
+I programmi CGI e il server comunicano in quattro modi (specificati nell’interfaccia standard CGI):
+1.  **Variabili di ambiente** del sistema operativo
+2.  **Parametri sulla linea di comandi**: programma CGI viene lanciato in un processo pesante (si pensi a shell di sistema operativo che interpreta i parametri passati, ad esempio in metodo GET)
+3.  **Standard Input** (usato con il metodo POST)
+4.  **Standard Output**: per restituire al server la pagina HTML da inviare al client
+
+Il programma CGI elabora i dati in ingresso ed emette
+un output per il client in attesa di risposta. Per passare i dati al server il programma CGI usa **`stdout`**.
+
+### Configurazione Web Server
+Se arriva URL `www.dino.it/cgi-bin/cerca server` deve rendersi conto che cerca non è un documento HTML ma un programma CGI. Perché ciò accada è necessario che:
+- I programmi CGI siano tutti in un'apposita directory
+- Nella configurazione del server sia specificato il path ove trovare i programmi CGI e l'identificatore che indica che è richiesta l'esecuzione di una applicazione.
+
+### Parametri GET
+>Con il metodo GET il server passa il contenuto della form al programma CGI come se fosse da linea di comando di una shell.
+
+```http
+www.dino.it/cerca?nomeTxt=diplodocus&cercaBtn=Cerca
+```
+### Parametri POST
+>Come abbiamo già visto, usando POST non viene aggiunto nulla alla URL specificata da ACTION. I dati del form, contenuti nell’header HTTP, vengono inviati al programma CGI tramite standard input. In questo modo si possono inviare dati lunghi a piacimento, senza i limiti di GET.
+
+### Environment
+
+Prima di chiamare il programma CGI, il Web server imposta alcune variabili di sistema corrispondenti ai principali header HTTP, ad esempio:
+- **REQUEST_METHOD**: metodo usato dalla form
+- **QUERY_STRING**: parte di URL che segue il "?"
+- **REMOTE_HOST**: host che ha inviato la richiesta
+- **CONTENT_TYPE**: tipo MIME dell’informazione contenuta nel body della richiesta (nel POST)
+- **CONTENT_LENGTH**: lunghezza dei dati inviati
+- **HTTP_USER_AGENT**: nome e versione del browser usato dal client 
+
+## Dal modello statico a quello dinamico
+Una soluzione ragionevole ai vari limiti del modello statico è quella di separare gli aspetti di contenuto da quelli di presentazione. Ad esempio, utilizziamo un database relazionale per memorizzare le informazioni relative ad ogni entità del modello (dinosauri).
+
+Realizziamo alcuni programmi CGI che generano dinamicamente l’enciclopedia:
+- *scheda*: crea una pagina con la scheda di un determinato dinosauro
+- *indice*: crea la pagina di indice per specie (tassonomia)
+- *alfabetico*: crea l’indice alfabetico
+- *cerca*: restituisce una pagina con i link alle schede che contengono il testo inserito dall’utente
+
+Tutti e 4 i programmi usano il DB per ricavare le informazioni utili per la costruzione della pagina. In questo modo la gestione dell’enciclopedia è sicuramente più semplice: basta inserire un record nel database per aggiungere una nuova specie. L’indice tassonomico e quello alfabetico si aggiornano automaticamente ed è anche possibile cambiare agevolmente layout di tutte le pagine, modificando un template vuoto che poi viene riempito con i dati a seconda del dinosauro.
+
+L’architettura che abbiamo appena visto presenta numerosi vantaggi ma soffre anche di diversi problemi. 
+- Di **prestazioni**: ogni volta che viene invocata una CGI si crea un **processo** che viene **distrutto** alla fine dell’elaborazione
+- Le CGI, soprattutto se scritte in C, possono essere poco robuste (ad esempio **errore bloccante**)
+- Ogni programma CGI deve reimplementare tutta una serie di parti comuni (**mancanza di moduli di base accessibili a tutti i programmi lato server**)
+
+## Application Server
+
+>La soluzione migliore è quella di realizzare un **contenitore** in cui far “vivere” le funzioni server-side. Il contenitore si preoccupa di fornire i servizi di cui le applicazioni hanno bisogno. Si ha così una soluzione **modulare** in cui le funzionalità ripetitive vengono portate a fattor comune. Un ambiente di questo tipo prende il nome di **application server**.
+
+Due tecnologie storicamente molto diffuse nell’ambito
+degli application server sono: .NET di Microsoft ed evoluzioni e Java J2EE. Altre soluzioni hanno una struttura più semplice e non sono application server a tutti gli effetti (si parla di moduli di estensione del Web server – comunque interessanti per applicazioni Web a rapida prototipazione e basso costo):
+- PHP (molto diffuso e di semplice utilizzo)
+- Le “vecchie” tecnologie ISAPI e ASP di Microsoft
+- Quelle basate su linguaggio Ruby (ruby on rails)
+
+### Stato
+L’enciclopedia dei dinosauri è un’applicazione **stateless** poichè il server e i programmi CGI non hanno necessità di tener traccia delle chiamate precedenti.
+L'interazione tra client e server può essere di due tipi:
+- >**Stateful**:  esiste stato dell’interazione e quindi l’nesimo messaggio può essere messo in relazione con gli n-1 precedenti. Non tutte le applicazioni possono fare a meno dello
+stato: In generale, tutte le volte in cui abbiamo bisogno di personalizzazione delle richieste Web, possiamo beneficiare di interazione stateful.
+
+- >**Stateless**: non si tiene traccia dello stato, ogni messaggio è indipendente dagli altri. In termini generali, un’interazione stateless è *“feasible”* senza generare grossi problemi solo se protocollo applicativo è progettato con **operazioni idempotenti**.
+
+#### Tipi di stato
+- >**Stato di esecuzione** (insieme dei dati parziali per una elaborazione): rappresenta un avanzamento in una esecuzione; per sua natura è uno stato volatile; può essere mantenuto in memoria lato server come stato di uno o più oggetti
+- >**Stato di sessione** (insieme dei dati che caratterizzano una interazione con uno specifico utente): la sessione viene gestita di solito in modo unificato attraverso l’uso di istanze di oggetti specifici (supporto a oggetti sessione)
+- >**Stato informativo persistente** (ad esempio gli ordini inseriti da un sistema di eCommerce): viene normalmente mantenuto in una struttura persistente come un database
+
+### Sessione
+La sessione rappresenta lo stato associato ad una sequenza di pagine visualizzate da un utente. Contiene tutte le informazioni necessarie durante l’esecuzione, quindi: Informazioni di sistema, IP di provenienza, lista delle pagine visualizzate, ..., informazioni di natura applicativa, nome e cognome, username, quanti e quali prodotti ha inserito nel carrello per un acquisto, ... Lo scope di sessione è dato dal tempo di vita della interazione utente (**lifespan**) e dall'**accessibilità**: usualmente concesso alla richiesta corrente e a tutte le richieste successive provenienti dallo stesso processo browser.
+
+Lo stato di sessione deve presentare i seguenti requisiti:
+- Deve essere condiviso da Client e Server
+- È associato a una o più conversazioni effettuate da un singolo utente
+- Ogni utente possiede il suo singolo stato
+
+Ci sono due tecniche di base per gestire lo stato, non necessariamente alternative ma integrabili:
+1.  Utilizzo del meccanismo dei **cookie** (storage lato cliente)
+2.  Gestione di uno stato sul server per ogni utente collegato (**sessione server-side**)
+
+## Distribuzione dei servizi
+La struttura a 3 tier (Web Server, Application Server, DataBase Server) rispecchia i 3 principali servizi che realizzano un sistema Web. Questi 3 servizi possono risiedere sullo stesso HW oppure essere divisi su macchine separate (**distribuzione verticale** dell’architettura).
+
+Orizzontalmente ad ogni livello è possibile replicare il servizio su diverse macchine. Si parla in questo caso di **distribuzione orizzontale**. Essendo una distribuzione per replicazione è possibile implementare politiche per la gestione della **fault tolerance** e anche del **bilanciamento di carico** a fine di maggiori performance.
+
+## Replicazione dei servizi
+### Web Server
+Web server è **stateless** per la natura del protocollo HTTP; per questo, molto facile da replicare. Il fatto che **IP è embedded in URL** può essere gestito attraverso diverse soluzioni sia hardware che software. Si possono applicare politiche di **load balancing** con diverse euristiche usando dispositivi appositi. 
+
+### Applicazione
+Prevalentemente si usa uno stato di sessione. Può accadere però che application server utilizzi oggetti o componenti con stato per motivi di performance (**cache**) o altre necessità specifiche. Alcuni framework disponibili sul mercato permettono replicazione attraverso **tecniche di clustering** (ne daremo cenni nella secondssa parte del corso); altri framework non sono in grado di replicare orizzontalmente. Se si mantiene lo stato concentrato all’interno della sessione e la sessione viene gestita interamente attraverso cookie, è possibile realizzare un framework applicativo completamente stateless lato server, ottenendo così realizzazione più semplice e primitiva di configurazione completamente replicabile in modo orizzontale.
+
+## Applicazioni multi-tier
+>È molto utile separare logicamente le funzioni necessarie in una struttura multilivello (multi-tier) al fine di fornire astrazioni via via più complesse e potenti a partire da funzionalità più elementari. Nel tempo si è affermata una classificazione indipendente dalla implementazione tecnologica, basata su una struttura a 4 livelli principali; non fornisce dettagli implementativi, non specifica quali moduli debbano essere implementati client-side o server-side, né nessuna altra specifica tecnica: è una architettura essenzialmente logico-funzionale.
+
+1.  **Presentation**: Livello di presentazione si occupa della visualizzazione dei risultati generati secondo il percorso definito nel flusso sottostante. Il livello di presentazione ha il compito di interpretare i dati del business flow e generare l’interfaccia grafica per la visualizzazione dei contenuti (**rendering**). Questo permette di avere facilmente diverse modalità/tipologie di presentazione degli stessi dati (esempio italiano/inglese).
+2.  **Business Flow**: A questo livello vengono implementati i flussi delle diverse conversazioni che interagiscono per comporre una applicazione. Una conversazione è realizzata da un insieme di pagine collegate in un **flusso di successive chiamate**. Il business flow raccoglie l’insieme delle chiamate necessarie per realizzare una conversazione. <br>**Ogni chiamata deve**: ▪ Caricare i parametri in ingresso ▪ Chiamare le funzioni di business logic necessarie per effettuare l’elaborazione ▪ Generare l’output che dovrà essere visualizzato.
+3.  **Business Logic**: La logica di business contiene le caratteristiche delle applicazioni e dipende sia dal modello dei dati che, ancora più rilevante, dalle logiche di utilizzo degli stessi. È l’insieme di tutte le funzioni offerte; si appoggia sui servizi per implementare i diversi algoritmi di risoluzione e provvedere alla generazione dei dati di output. Così modellata, business logic presenta un **elevato grado di riuso**.
+4.  **Services**: Servizi devono fornire tutte le funzionalità base (API) necessarie per l’implementazione rapida ed efficace della logica di business, dalla gestione della concorrenza al supporto alle transazioni, dall’interfacciamento ai db al monitoraggio/controllo/gestione delle performance. I servizi realizzano le funzioni di base per sviluppo di applicazioni: **Accesso e gestione risorse**, **gestione transazioni**, **gestione sicurezza**, **accesso e gestione delle sorgenti dati**.
+
+# Servlet 
+
+>Una **Servlet** è una classe Java che **fornisce risposte a richieste HTTP**. In termini più generali è una classe che fornisce un servizio comunicando con il client mediante protocolli di tipo request/response: tra questi protocolli il più noto e diffuso è HTTP. Le Servlet estendono le funzionalità di un Web server generando contenuti dinamici e superando i classici limiti delle applicazioni CGI ed **eseguono direttamente in un Web Container**. Sono classi che derivano dalla classe `HttpServlet`.
+
+Esempio di risposta ridefinendo `doGet()`:
+
+```java
+...
+public class HelloServlet extends HttpServlet {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) {
+    response.setContentType("text/html");
+    PrintWriter out = response.getWriter();
+    out.println("<title>Hello World!</title>");
+  }
+...
+}
+```
+
+Le servlet HTTP sono il tipo più comune di servlet e possono processare **richieste HTTP**, producendo **response HTTP**. All’arrivo di una richiesta HTTP il Servlet Container crea un oggetto request e un oggetto response e li passa alla servlet:
+
+![](Pictures/3-02-1.png)
+
+## Request
+>Gli oggetti di tipo Request rappresentano la chiamata al server effettuata dal client. Sono caratterizzati da varie informazioni: ▪ Chi ha effettuato la Request ▪ Quali parametri sono stati passati nella Request ▪ Quali header sono stati passati.
+
+`request` contiene i dati inviati dal client HTTP al server. Viene creata dal servlet container e passata alla servlet come parametro ai metodi `doGet()` e `doPost()`. È un’istanza di una classe che implementa l’interfaccia `HttpServletRequest`.
+
+Fornisce metodi per accedere a varie informazioni
+- HTTP Request URL
+- HTTP Request header
+- Tipo di autenticazione e informazioni su utente
+- Cookie
+- Session
+
+### Request URL e metodi
+```http
+http://[host]:[port]/[request path]?[query string]
+```
+La **request path** è composta dal contesto e dal nome della Web application. La **query string** è composta da un insieme di parametri che sono forniti dall’utente.
+
+<details> <summary><b>Metodi per accedere all'URL</b></summary>
+
+- **`String getParameter(String parName)`**: restituisce il valore di un parametro individuato per nome 
+- **`String getContextPath()`**: restituisce informazioni sulla parte dell’URL che indica il contesto della Web application
+- **`String getQueryString()`**: restituisce la stringa di query
+- **`String getPathInfo()`**: per ottenere il path
+- **`String getPathTranslated()`** per ottenere informazioni sul path nella forma risolta
+</details>
+
+<details> <summary><b>Metodi per accedere agli Header</b></summary>
+
+- **`String getHeader(String name)`** restituisce il valore di un header individuato per nome sotto forma di stringa
+- **`Enumeration getHeaders(String name)`** restituisce tutti i valori dell’header individuato da name sotto forma di enumerazione di stringhe (utile ad esempio per Accept che ammette n valori)
+- **`Enumeration getHeaderNames()`** elenco dei nomi di tutti gli header presenti nella richiesta
+- **`int getIntHeader(name)`** valore di un header convertito in intero 
+- **`long getDateHeader(name)`** valore della parte `Date` di header, convertito in long
+</details>
+
+<details> <summary><b>Metodi per autenticazione, sicurezza e cookie</b></summary>
+
+- **`String getRemoteUser()`** nome di user se la servlet ha accesso autenticato, null altrimenti
+- **`String getAuthType()`** nome dello schema di autenticazione usato per proteggere la servlet
+- **`boolean isUserInRole(java.lang.String role)`** restituisce true se l’utente è associato al ruolo specificato
+- **`Cookie[] getCookies()`** restituisce un array di oggetti cookie che il client ha inviato alla request
+</details>
+
+`HttpRequest` espone anche il metodo **`InputStream getInputStream()`**: Consente di leggere il body della richiesta (ad esempio dati di post). Esempio:
+
+```java
+public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  PrintWriter out = response.getWriter();
+  InputStream is = request.getInputStream();
+  BufferedReader in = new BufferedReader(new InputStreamReader(is));
+  out.println("<html>\n<body>");
+  out.println("Contenuto del body del pacchetto: "); while ((String line = in.readLine()) != null)
+    out.println(line)
+  out.println("</body>\n</html>");
+}
+```
+
+## Response
+>Gli oggetti di tipo Response rappresentano le informazioni restituite al client in risposta ad una Request ▪ Dati in forma testuale (es. html, text) o binaria (es. immagini) ▪ HTTP header, cookie, ...
+
+Contiene i dati restituiti dalla Servlet al Client: 
+- **Status line** (status code, status phrase)
+- **Header della risposta HTTP** (**`public void setHeader(String headerName, String headerValue)`** imposta un header arbitrario)
+- **Response body**: il contenuto (ad es. pagina HTML), disponibile in due modi:
+    1. **`public PrintWriter getWriter()`**: mette a disposizione uno stream di caratteri (un’istanza di `PrintWriter`)
+    2. **`public ServletOutputStream getOuputStream()`**: mette a disposizione uno stream di byte (un’istanza di `ServletOutputStream`)  
+
+Ha come tipo l’interfaccia HttpResponse che espone metodi per:
+- Specificare lo status code della risposta HTTP: **`public void setStatus(int statusCode)`**. Per inviare errori possiamo usare **`public void sendError(int statusCode, String message)`**
+- Indicare il content type (tipicamente text/html): **`setContentType()`** configura il content-type (**si usa sempre**)
+- Ottenere un output stream in cui scrivere il contenuto da restituire
+- Gestire i cookie: **`addCookie()`**
+
+## Ciclo di vita delle Servlet
+
+**Servlet container** controlla e supporta automaticamente il ciclo di vita di una servlet. Se non esiste una istanza della servlet nel container carica la classe della servlet, ne crea una istanza e la inizializza (invoca il metodo **`init()`**). Poi, a regime invoca la servlet (`doGet()` o `doPost()` a seconda del tipo di richiesta ricevuta) passando come parametri due oggetti di tipo **HttpServletRequest** e **HttpServletResponse**.
+
+### Metodi per il controllo
+
+- **`init()`**: viene chiamato una sola volta al caricamento della servlet  In questo metodo si può inizializzare  l’istanza: ad esempio si crea la connessione con un database.
+- **`service()`**: viene chiamato ad ogni HTTP Request. Chiama `doGet()` o `doPost()` a seconda del tipo di HTTP Request ricevuta. Se non viene ridefinito, il metodo service effettua il **dispatch** delle richieste ai metodi doGet, doPost, etc... a seconda del metodo HTTP usato nella request
+- **`destroy()`**: viene chiamato una sola volta quando la servlet deve essere disattivata (es. quando è rimossa)
+
+## Servlet e multithreading
+
+- **Modello “normale”**: una **sola istanza di servlet** e **un thread assegnato ad ogni richiesta http per servlet**, anche se richieste per quella servlet sono già in esecuzione. Nella modalità normale più thread condividono la stessa istanza di una servlet e quindi si crea una situazione di concorrenza. Il metodo `init()` della servlet viene chiamato una sola volta quando la servlet è caricata dal Web container. I metodi `service()` e `destroy()` possono essere chiamati solo dopo il completamento dell’esecuzione di `init()`. Il metodo `service()` (e quindi `doGet()` e `doPost()`) può essere invocato da numerosi client in modo concorrente ed è quindi necessario gestire le sezioni critiche (a completo carico del programmatore dell’applicazione Web): Uso di blocchi synchronized, semafori, mutex...
+- **Modello single threaded (deprecato)**:  si può indicare al container di creare un’istanza della servlet per ogni richiesta concorrente. Questa modalità prende il nome di Single-Threaded Model. Se una servlet vuole operare in modo single-threaded deve implementare l’interfaccia marker `SingleThreadModel`.
+
+## Deployment
+>Un’applicazione Web deve essere installata e questo processo prende il nome di deployment. Il deployment comprende: La definizione del runtime environment di una Web Application ▪ L**a mappatura delle URL sulle servlet** ▪ La definizione delle impostazioni di default di un’applicazione, ad es. welcome page e pagine di errore ▪ La configurazione delle caratteristiche di sicurezza dell’applicazione
+
+### WAR (Web ARchives) e configurazione Servlet
+>Rappresentano la modalità con cui avviene la distribuzione/deployment delle applicazioni Web. Sono file jar con una struttura particolare. La struttura di directory delle Web Application è basata sulle Servlet 2.4 specification:
+
+![](Pictures/3-02-2.png)
+
+**web.xml** è in sostanza un file di configurazione (XML) che contiene una serie di elementi descrittivi. Contiene l’elenco delle servlet attive sul server, il loro mapping verso URL, e per ognuna di loro permette di definire una serie di parametri come *coppie nome-valore*. 
+
+Esempio:
+```xml
+<web-app>
+  <servlet>
+    <servlet-name>myServlet</servlet-name>
+    <servlet-class>myPackage.MyServlet</servlet-class>
+    <init-param>
+      <param-name>parName</param-name>
+      <param-value>parValue</param-value>
+    </init-param>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>myServlet</servlet-name>
+    <url-pattern>/myURL</url-pattern>
+  </servlet-mapping>
+</web-app>
+```
+
+Una servlet accede ai propri parametri di configurazione mediante l’interfaccia **`ServletConfig`**:. Ci sono 2 modi per accedere a oggetti di questo tipo:
+1.  Il parametro di tipo `ServletConfig` passato al
+metodo `init()`
+2.  il metodo `getServletConfig()` della servlet, che può essere invocato in qualunque momento.
+  
+`ServletConfig` espone un metodo per ottenere il valore di un parametro in base al nome: **`String getInitParameter(String parName)`**.
+
+## Servlet Context
+
+Ogni Web application esegue in un contesto: c'è **corrispondenza 1:1 tra una Web-app e suo contesto**. L’interfaccia `ServletContext` è la vista della Web application (del suo contesto) da parte della servlet.  Si può ottenere un’istanza di tipo ServletContext all’interno della servlet utlizzando il metodo **`getServletContext()`**. Consente di accedere ai parametri di inizializzazione e agli attributi del contesto, accedere alle risorse statiche della Web application (es. immagini) mediante il metodo **`getResourceAsStream(String path)`**.
+
+<p style="color: #FF3333"><b>IMPORTANTE: servlet context viene condiviso tra tutti gli utenti, le richieste e le servlet facenti parte della stessa Web application</b></p>
+
+I parametri di inizializzazione del contesto sono definiti all’interno di elementi di tipo context-param in web.xml
+
+```xml
+<web-app>
+  <context-param>
+    <param-name>feedback</param-name>
+    <param-value>feedback@deis.unibo.it</param-value>
+  </context-param>
+  ...
+</web-app>
+```
+
+Sono accessibili a tutte le servlet della Web application:
+```java
+…
+ServletContext ctx = getServletContext();
+String feedback = ctx.getInitParameter(“feedback”);
+…
+```
+
+### Attributi di contesto
+>Gli attributi di contesto sono accessibili a tutte le servlet e funzionano come variabili “globali”. Vengono gestiti a runtime: possono essere creati, scritti e letti dalle servlet. Possono contenere oggetti anche complessi (serializzazione/deserializzazione).
+
+**Scrittura**:
+```java
+ServletContext ctx = getServletContext();
+ctx.setAttribute(“utente1”, new User(“Giorgio Bianchi”));
+ctx.setAttribute(“utente2”, new User(“Paolo Rossi”));
+```
+
+**Lettura**:
+```java
+ServletContext ctx = getServletContext();
+Enumeration aNames = ctx.getAttributeNames();
+while (aNames.hasMoreElements) {
+  String aName = (String)aNames.nextElement();
+  User user = (User) ctx.getAttribute(aName);
+  ctx.removeAttribute(aName);
+}
+```
+
+## Gestione dello stato (Sessione)
+
+Come abbiamo già detto più volte, HTTP è un protocollo *stateless*: non fornisce in modo nativo meccanismi per il mantenimento dello stato tra diverse richieste provenienti dallo stesso client. Applicazioni Web hanno spesso bisogno di stato. Sono state definite due tecniche per mantenere traccia delle informazioni di stato:
+- **uso dei cookie**: meccanismo di basso livello. Il cookie è un’unità di informazione che Web server deposita sul Web browser lato cliente. Sono parte dell’header HTTP, trasferiti in formato testuale avanti e indietro nelle richieste e nelle risposte. Possono però essere rifiutati dal browser! <br>La classe **`Cookie`** modella il cookie HTTP. Si recuperano i cookie dalla request utilizzando il metodo **`getCookies()`** e Si aggiungono cookie alla response utilizzando il metodo **`addCookie()`**. Con il metodo **`setSecure(true)`** il client viene forzato a inviare il cookie solo su protocollo sicuro (*HTTPS*).
+- **uso della sessione** (**session tracking**): meccanismo di alto livello. La sessione Web è un’entità gestita dal Web container, condivisa fra tutte le richieste provenienti dallo stesso client: consente di mantenere, quindi, informazioni di stato (di sessione). Può contenere dati di varia natura ed è identificata in modo univoco da un **session ID**. Viene usata dai componenti di una Web application per mantenere lo stato del client durante le molteplici interazioni dell’utente con la Web application. <br>Per ottenere un riferimento ad un oggetto di tipo `HttpSession` si usa il metodo **`getSession()`** dell’interfaccia `HttpServletRequest`: **`public HttpSession getSession(boolean createNew)`**. A seconda del flag `createNew`, se `true` ritorna la sessione esistente o ne crea una nuova, se false ritorna la sessione esistente o `null`. Si possono memorizzare dati specifici dell’utente negli attributi della sessione (*coppie nome/valore*). Sono simili agli attributi di contesto, ma con **scope fortemente diverso!**, e consentono di memorizzare e recuperare oggetti. 
+
+Esempio di sessione: 
+```java
+Cart sc = (Cart)session.getAttribute("shoppingCart");
+sc.addItem(item);
+session.setAttribute("shoppingCart", new Cart());
+session.removeAttribute("shoppingCart");
+Enumeration e = session.getAttributeNames();
+while(e.hasMoreElements())
+  out.println(“Key; “ + (String)e.nextElements());
+```
+
+<details><summary>Altri metodi per sessioni</summary>
+
+- **`String getID()`**: restituisce l’ID di una sessione
+- **`boolean isNew()`**: dice se la sessione è nuova
+- **`void invalidate()`** permette di invalidare (distruggere) una sessione
+- **`long getCreationTime()`** dice da quanto tempo è attiva la sessione (in millisecondi)
+- **`long getLastAccessedTime()`** dà informazioni su quando è stata utilizzata l’ultima volta
+
+Esempio:
+```java
+String sessionID = session.getId();
+if(session.isNew())
+  out.println(“La sessione e’ nuova”);
+session.invalidate();
+out.println(“Millisec:” + session.getCreationTime());
+out.println(session.getLastAccessedTime());
+```
+</details>
+
+### Session ID e URL rewriting
+La **sessione rappresenta un’utile astrazione** ed essa stessa **può far ricorso a due meccanismi base di implementazione**: **Cookie** e **URL rewriting**.
+
+Il session ID è usato per identificare le richieste provenienti dallo stesso utente e mapparle sulla
+corrispondente sessione. Una tecnica per trasmettere l’ID è quella di includerlo in un cookie (**session cookie**): sappiamo però che non sempre i cookie sono attivati nel browser. Un’alternativa è rappresentata dall’inclusione del **session ID nella URL**: si parla di **URL rewriting**. È buona prassi codificare sempre le URL generate dalle servlet usando il metodo **`encodeURL()`** di `HttpServletResponse`
+
+## Scoped objects
+>Gli oggetti di tipo `ServletContext`, `HttpSession`, `HttpServletRequest` forniscono metodi per immagazzinare e ritrovare oggetti nei loro rispettivi ambiti (**scope**). Lo scope è definito dal tempo di vita (**lifespan**) e dall’accessibilità da parte delle servlet.
+
+Ambito | Interfaccia | Lifespan | Accessibilità
+|-|-|-|-|
+**Request** | `HttpServletRequest` | Fino all’invio della risposta | Servlet corrente e ogni altra pagina inclusa o in forward
+**Session** |`HttpSession`| Lo stesso della sessione utente | Ogni richiesta dello stesso client
+**Application** | `ServletContext` | Lo stesso dell’applicazione | Ogni richiesta alla stessa Web app anche da clienti diversi e per servlet diverse
+
+Gli oggetti **scoped** forniscono i seguenti metodi per immagazzinare e ritrovare oggetti nei rispettivi ambiti (**scope**): 
+- **`void setAttribute(String name, Object o)`**
+- **`Object getAttribute(String name)`**
+- **`void removeAttribute(String name)`**
+- **`Enumeration getAttributeNames()`**
+
+
+### Risorse WEB
+Includere risorse Web (altre pagine, statiche o dinamiche) può essere utile quando si vogliono aggiungere contenuti creati da un’altra risorsa (ad es. un’altra servlet). 
+- Inclusione di **risorsa statica**: includiamo un’altra pagina nella nostra (ad es. banner)
+- Inclusione di **risorsa dinamica**: la servlet inoltra una request ad un componente Web che la elabora e restituisce il risultato .Il risultato viene incluso nella pagina prodotta dalla servlet.
+
+**La risorsa inclusa può lavorare con il response body** (problemi comunque con l’utilizzo di cookie).
+
+È anche possibile inviare al browser una risposta che lo forza ad accedere ad un’altra pagina (**ridirezione**). Possiamo ottenere questo risultato in due modi, agendo sull’oggetto response:
+1.  Invocando il metodo **`public void sendRedirect(String url)`**
+2.  Lavorando più a basso livello con gli header: **`response.setStatus(response.SC_MOVED_PERMANENTLY);`**,**`response.setHeader("Location", "http://...");`**
+
+Per includere una risorsa si ricorre a un oggetto di tipo **`RequestDispatcher`** che può essere richiesto al contesto indicando la risorsa da includere. Si invoca quindi il metodo **`include`** passando come parametri request e response che vengono così condivisi con la risorsa inclusa.
+
+```java
+RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/inServlet");
+dispatcher.include(request, response);
+```
+
+### Forward
+Anche in questo caso si deve ottenere un oggetto di tipo `RequestDispatcher` da `request` passando come
+parametro il nome della risorsa. Si invoca quindi il metodo **`forward`** passando anche in questo caso `request` e `response`.
+
+```java
+RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/inServlet");
+dispatcher.forward(request, response);
+```
 
 # Javascript
 >JavaScript è un linguaggio di scripting sviluppato per dare interattività alle pagine HTML. Può essere inserito direttamente nelle pagine Web; in pratica è lo standard «client-side» per implementare pagine «dinamiche». Il codice JavaScript viene eseguito da un interprete contenuto all’interno del browser.
@@ -1310,142 +1739,6 @@ Generalmente si valida un form in due momenti:
 </form>
 ```
 </details>
-
-# Modello Web Statico/Dinamico
-> **Modello statico**: Il modello che abbiamo analizzato finora, basato sul concetto di ipertesto distribuito, ha una natura essenzialmente statica. Anche se l’utente può percorrere dinamicamente l’ipertesto in modi molto diversi, l’insieme dei contenuti è prefissato staticamente: le pagine vengono preparate staticamente a priori, non esistono contenuti composti dinamicamente in base all’interazione con l’utente. È un modello semplice, potente, di facile implementazione efficiente, ma presenta evidenti limiti.
-
-Esempio di ricerca con form GET:
-```html
-<html>
-  <head>
-    <title> Ricerca dinosauri </title>
-  </head>
-  <body>
-    <p>Enciclopedia dei dinosauri - Ricerca</p>
-    <form method="GET" action="http://www.dino.it/cerca">
-      <p>Nome del dinosauro
-        <input type="text" name="nomeTxt" size="20">
-        <input type="submit" value="Cerca" name="cercaBtn">
-      </p>
-    </form>
-  </body>
-</html>
-```
-Web server non è in grado di interpretare immediatamente questa chiamata (URL con query) perché **richiede l’esecuzione dinamica** di un’applicazione legata al particolare contesto. È quindi necessaria un’**estensione specifica**: un programma scritto appositamente per l’enciclopedia che interpreti i parametri passati nel GET, cerchi nel file system la pagina e la restituisca al Web server per l’invio al client.
-
-## CGI
-La prima soluzione proposta per risolvere questo problema prende il nome di **Common Gateway Interface (CGI)**, già presente fino da HTTPv1.0. 
->CGI è uno standard per interfacciare applicazioni esterne con Web server. Un programma CGI viene eseguito dinamicamente in risposta alla chiamata e produce output che costituisce la risposta alla richiesta http (informazione dinamica). Può essere scritto in qualunque linguaggio: ad esempio in C o in un linguaggio di script (spesso PHP o Perl) o in un qualche linguaggio ibrido (es. Python).
-
-Le operazioni si svolgono nel seguente ordine:
-1. Il client, tramite HTTP, invia al server la richiesta di eseguire un programma CGI con alcuni parametri e dati in ingresso
-2. Il server, attraverso l'**interfaccia standard CGI(accordo standardizzato)**, chiama il programma passandogli i parametri e i dati inviati dal client 
-3. Eseguite le operazioni necessarie, il programma CGI rimanda al server i dati elaborati (pagina HTML), sempre facendo uso dell'interfaccia CGI 
-4. Il server invia al client i dati elaborati dal programma CGI tramite protocollo HTTP 
-
-I programmi CGI e il server comunicano in quattro modi (specificati nell’interfaccia standard CGI):
-1.  **Variabili di ambiente** del sistema operativo
-2.  **Parametri sulla linea di comandi**: programma CGI viene lanciato in un processo pesante (si pensi a shell di sistema operativo che interpreta i parametri passati, ad esempio in metodo GET)
-3.  **Standard Input** (usato con il metodo POST)
-4.  **Standard Output**: per restituire al server la pagina HTML da inviare al client
-
-Il programma CGI elabora i dati in ingresso ed emette
-un output per il client in attesa di risposta. Per passare i dati al server il programma CGI usa **`stdout`**.
-
-### Configurazione Web Server
-Se arriva URL `www.dino.it/cgi-bin/cerca server` deve rendersi conto che cerca non è un documento HTML ma un programma CGI. Perché ciò accada è necessario che:
-- I programmi CGI siano tutti in un'apposita directory
-- Nella configurazione del server sia specificato il path ove trovare i programmi CGI e l'identificatore che indica che è richiesta l'esecuzione di una applicazione.
-
-### Parametri GET
->Con il metodo GET il server passa il contenuto della form al programma CGI come se fosse da linea di comando di una shell.
-
-```http
-www.dino.it/cerca?nomeTxt=diplodocus&cercaBtn=Cerca
-```
-### Parametri POST
->Come abbiamo già visto, usando POST non viene aggiunto nulla alla URL specificata da ACTION. I dati del form, contenuti nell’header HTTP, vengono inviati al programma CGI tramite standard input. In questo modo si possono inviare dati lunghi a piacimento, senza i limiti di GET.
-
-### Environment
-
-Prima di chiamare il programma CGI, il Web server imposta alcune variabili di sistema corrispondenti ai principali header HTTP, ad esempio:
-- **REQUEST_METHOD**: metodo usato dalla form
-- **QUERY_STRING**: parte di URL che segue il "?"
-- **REMOTE_HOST**: host che ha inviato la richiesta
-- **CONTENT_TYPE**: tipo MIME dell’informazione contenuta nel body della richiesta (nel POST)
-- **CONTENT_LENGTH**: lunghezza dei dati inviati
-- **HTTP_USER_AGENT**: nome e versione del browser usato dal client 
-
-## Dal modello statico a quello dinamico
-Una soluzione ragionevole ai vari limiti del modello statico è quella di separare gli aspetti di contenuto da quelli di presentazione. Ad esempio, utilizziamo un database relazionale per memorizzare le informazioni relative ad ogni entità del modello (dinosauri).
-
-Realizziamo alcuni programmi CGI che generano dinamicamente l’enciclopedia:
-- *scheda*: crea una pagina con la scheda di un determinato dinosauro
-- *indice*: crea la pagina di indice per specie (tassonomia)
-- *alfabetico*: crea l’indice alfabetico
-- *cerca*: restituisce una pagina con i link alle schede che contengono il testo inserito dall’utente
-
-Tutti e 4 i programmi usano il DB per ricavare le informazioni utili per la costruzione della pagina. In questo modo la gestione dell’enciclopedia è sicuramente più semplice: basta inserire un record nel database per aggiungere una nuova specie. L’indice tassonomico e quello alfabetico si aggiornano automaticamente ed è anche possibile cambiare agevolmente layout di tutte le pagine, modificando un template vuoto che poi viene riempito con i dati a seconda del dinosauro.
-
-L’architettura che abbiamo appena visto presenta numerosi vantaggi ma soffre anche di diversi problemi. 
-- Di **prestazioni**: ogni volta che viene invocata una CGI si crea un **processo** che viene **distrutto** alla fine dell’elaborazione
-- Le CGI, soprattutto se scritte in C, possono essere poco robuste (ad esempio **errore bloccante**)
-- Ogni programma CGI deve reimplementare tutta una serie di parti comuni (**mancanza di moduli di base accessibili a tutti i programmi lato server**)
-
-## Application Server
-
->La soluzione migliore è quella di realizzare un **contenitore** in cui far “vivere” le funzioni server-side. Il contenitore si preoccupa di fornire i servizi di cui le applicazioni hanno bisogno. Si ha così una soluzione **modulare** in cui le funzionalità ripetitive vengono portate a fattor comune. Un ambiente di questo tipo prende il nome di **application server**.
-
-Due tecnologie storicamente molto diffuse nell’ambito
-degli application server sono: .NET di Microsoft ed evoluzioni e Java J2EE. Altre soluzioni hanno una struttura più semplice e non sono application server a tutti gli effetti (si parla di moduli di estensione del Web server – comunque interessanti per applicazioni Web a rapida prototipazione e basso costo):
-- PHP (molto diffuso e di semplice utilizzo)
-- Le “vecchie” tecnologie ISAPI e ASP di Microsoft
-- Quelle basate su linguaggio Ruby (ruby on rails)
-
-### Stato
-L’enciclopedia dei dinosauri è un’applicazione **stateless** poichè il server e i programmi CGI non hanno necessità di tener traccia delle chiamate precedenti.
-L'interazione tra client e server può essere di due tipi:
-- >**Stateful**:  esiste stato dell’interazione e quindi l’nesimo messaggio può essere messo in relazione con gli n-1 precedenti. Non tutte le applicazioni possono fare a meno dello
-stato: In generale, tutte le volte in cui abbiamo bisogno di personalizzazione delle richieste Web, possiamo beneficiare di interazione stateful.
-
-- >**Stateless**: non si tiene traccia dello stato, ogni messaggio è indipendente dagli altri. In termini generali, un’interazione stateless è *“feasible”* senza generare grossi problemi solo se protocollo applicativo è progettato con **operazioni idempotenti**.
-
-#### Tipi di stato
-- >**Stato di esecuzione** (insieme dei dati parziali per una elaborazione): rappresenta un avanzamento in una esecuzione; per sua natura è uno stato volatile; può essere mantenuto in memoria lato server come stato di uno o più oggetti
-- >**Stato di sessione** (insieme dei dati che caratterizzano una interazione con uno specifico utente): la sessione viene gestita di solito in modo unificato attraverso l’uso di istanze di oggetti specifici (supporto a oggetti sessione)
-- >**Stato informativo persistente** (ad esempio gli ordini inseriti da un sistema di eCommerce): viene normalmente mantenuto in una struttura persistente come un database
-
-### Sessione
-La sessione rappresenta lo stato associato ad una sequenza di pagine visualizzate da un utente. Contiene tutte le informazioni necessarie durante l’esecuzione, quindi: Informazioni di sistema, IP di provenienza, lista delle pagine visualizzate, ..., informazioni di natura applicativa, nome e cognome, username, quanti e quali prodotti ha inserito nel carrello per un acquisto, ... Lo scope di sessione è dato dal tempo di vita della interazione utente (**lifespan**) e dall'**accessibilità**: usualmente concesso alla richiesta corrente e a tutte le richieste successive provenienti dallo stesso processo browser.
-
-Lo stato di sessione deve presentare i seguenti requisiti:
-- Deve essere condiviso da Client e Server
-- È associato a una o più conversazioni effettuate da un singolo utente
-- Ogni utente possiede il suo singolo stato
-
-Ci sono due tecniche di base per gestire lo stato, non necessariamente alternative ma integrabili:
-1.  Utilizzo del meccanismo dei **cookie** (storage lato cliente)
-2.  Gestione di uno stato sul server per ogni utente collegato (**sessione server-side**)
-
-## Distribuzione dei servizi
-La struttura a 3 tier (Web Server, Application Server, DataBase Server) rispecchia i 3 principali servizi che realizzano un sistema Web. Questi 3 servizi possono risiedere sullo stesso HW oppure essere divisi su macchine separate (**distribuzione verticale** dell’architettura).
-
-Orizzontalmente ad ogni livello è possibile replicare il servizio su diverse macchine. Si parla in questo caso di **distribuzione orizzontale**. Essendo una distribuzione per replicazione è possibile implementare politiche per la gestione della **fault tolerance** e anche del **bilanciamento di carico** a fine di maggiori performance.
-
-## Replicazione dei servizi
-### Web Server
-Web server è **stateless** per la natura del protocollo HTTP; per questo, molto facile da replicare. Il fatto che **IP è embedded in URL** può essere gestito attraverso diverse soluzioni sia hardware che software. Si possono applicare politiche di **load balancing** con diverse euristiche usando dispositivi appositi. 
-
-### Applicazione
-Prevalentemente si usa uno stato di sessione. Può accadere però che application server utilizzi oggetti o componenti con stato per motivi di performance (**cache**) o altre necessità specifiche. Alcuni framework disponibili sul mercato permettono replicazione attraverso **tecniche di clustering** (ne daremo cenni nella secondssa parte del corso); altri framework non sono in grado di replicare orizzontalmente. Se si mantiene lo stato concentrato all’interno della sessione e la sessione viene gestita interamente attraverso cookie, è possibile realizzare un framework applicativo completamente stateless lato server, ottenendo così realizzazione più semplice e primitiva di configurazione completamente replicabile in modo orizzontale.
-
-## Applicazioni multi-tier
->È molto utile separare logicamente le funzioni necessarie in una struttura multilivello (multi-tier) al fine di fornire astrazioni via via più complesse e potenti a partire da funzionalità più elementari. Nel tempo si è affermata una classificazione indipendente dalla implementazione tecnologica, basata su una struttura a 4 livelli principali; non fornisce dettagli implementativi, non specifica quali moduli debbano essere implementati client-side o server-side, né nessuna altra specifica tecnica: è una architettura essenzialmente logico-funzionale.
-
-1.  **Presentation**: Livello di presentazione si occupa della visualizzazione dei risultati generati secondo il percorso definito nel flusso sottostante. Il livello di presentazione ha il compito di interpretare i dati del business flow e generare l’interfaccia grafica per la visualizzazione dei contenuti (**rendering**). Questo permette di avere facilmente diverse modalità/tipologie di presentazione degli stessi dati (esempio italiano/inglese).
-2.  **Business Flow**: A questo livello vengono implementati i flussi delle diverse conversazioni che interagiscono per comporre una applicazione. Una conversazione è realizzata da un insieme di pagine collegate in un **flusso di successive chiamate**. Il business flow raccoglie l’insieme delle chiamate necessarie per realizzare una conversazione. <br>**Ogni chiamata deve**: ▪ Caricare i parametri in ingresso ▪ Chiamare le funzioni di business logic necessarie per effettuare l’elaborazione ▪ Generare l’output che dovrà essere visualizzato.
-3.  **Business Logic**: La logica di business contiene le caratteristiche delle applicazioni e dipende sia dal modello dei dati che, ancora più rilevante, dalle logiche di utilizzo degli stessi. È l’insieme di tutte le funzioni offerte; si appoggia sui servizi per implementare i diversi algoritmi di risoluzione e provvedere alla generazione dei dati di output. Così modellata, business logic presenta un **elevato grado di riuso**.
-4.  **Services**: Servizi devono fornire tutte le funzionalità base (API) necessarie per l’implementazione rapida ed efficace della logica di business, dalla gestione della concorrenza al supporto alle transazioni, dall’interfacciamento ai db al monitoraggio/controllo/gestione delle performance. I servizi realizzano le funzioni di base per sviluppo di applicazioni: **Accesso e gestione risorse**, **gestione transazioni**, **gestione sicurezza**, **accesso e gestione delle sorgenti dati**.
 
 # AJAX
 L’utilizzo di **DHTML** (JavaScript/Eventi + DOM + CSS) delinea un nuovo modello per applicazioni Web. Modello a eventi simile a quello delle applicazioni tradizionali.
@@ -1936,6 +2229,15 @@ dell’utente sono:
 Per proteggere le nostre applicazioni dall’SQL injection, i dati di input dell’utente NON devono essere direttamente incastonati all’interno di Statement SQL. A prevenzione del problema, l’interfaccia
 **`PreparedStatement`** permette di gestire in modo
 corretto anche l’inserimenti di dati “ostili”.
+
+## Connection Pool e DataSource
+>I **`Connection Pool`** sono oggetti, amministrati dall’application server, preposti a gestire connessioni verso DB. 
+
+Sono configurabili attraverso opportuni file. Il vantaggio principale nell’utilizzo di `ConnectionPool` risiede nel fatto che **le connessioni sono esistenti quando l’applicazione necessita di connettersi a DB**, eliminando quindi overhead dovuto alla creazione delle connessioni ad ogni richiesta. L'application server può applicare un **bilanciamento di carico** alle applicazioni che usano DB, assegnando o rilasciando connessioni alle applicazioni in dipendenza dalle loro necessità (**connection pooling**). Il bilanciamento può anche includere un incremento o riduzione del numero di connessioni nel pool al fine di adattarlo al cambiamento delle condizioni di carico.
+
+>I **`DataSource`** sono factory di connessioni verso sorgenti dati fisiche rappresentate da oggetti di tipo `javax.sql.DataSource`.
+
+Oggetti di tipo `DataSource` vengono pubblicati su JNDI e vengono creati sulla base di una configurazione contenuta in un descrittore (es. web.xml). `DataSource` fa da **wrapper per il concetto di connection pool**.
 
 # Metodologie di Progettazione della Persistenza: Approccio “forza bruta”, Pattern DAO,  Framework ORM e Hibernate
 
