@@ -99,6 +99,10 @@
   - [Scoped objects](#Scoped-objects)
     - [Risorse WEB](#Risorse-WEB)
     - [Forward](#Forward)
+- [JSP (Java Server Pages)](#JSP-Java-Server-Pages)
+  - [Funzionamento JSP](#Funzionamento-JSP)
+    - [Tag](#Tag)
+  - [Built-in Objects (con scope differenziati)](#Built-in-Objects-con-scope-differenziati)
 - [Javascript](#Javascript)
   - [Oggetti](#Oggetti)
     - [Costanti oggetto](#Costanti-oggetto)
@@ -1333,6 +1337,186 @@ parametro il nome della risorsa. Si invoca quindi il metodo **`forward`** passan
 ```java
 RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/inServlet");
 dispatcher.forward(request, response);
+```
+
+# JSP (Java Server Pages)
+
+>Le JSP sono uno dei due componenti di base della tecnologia J2EE, relativamente alla parte Web: template per la generazione di contenuto dinamico estendondendo HTML con codice Java custom.
+
+Quando viene effettuata una richiesta a una JSP la **parte HTML viene direttamente trascritta** sullo stream di output mentre il **codice Java viene eseguito sul server** per la generazione del contenuto HTML dinamico. La pagina HTML così formata (parte statica + parte generata dinamicamente) viene restituita al client.
+
+Le richieste verso JSP sono gestite da una particolare servlet (in Tomcat si chiama **JspServlet**) che effettua le seguenti operazioni:
+- traduzione della JSP in una servlet
+- compilazione della servlet risultante in una classe
+- esecuzione della JSP
+
+Dal momento che le JSP sono compilate in servlet, il ciclo di vita delle JSP, dopo compilazione, è controllato sempre dal medesimo Web container.
+
+Nella servlet logica per la generazione del documento HTML è implementata completamente in Java, mentre le JSP nascono proprio per facilitare la progettazione grafica e l’aggiornamento delle pagine. Se si vogliono fornire contenuti differenziati a seconda di diversi parametri quali l’identità dell’utente, condizioni dipendenti dalla business logic, etc. è conveniente continuare a lavorare con le servlet. Le JSP rendono viceversa **molto semplice presentare documenti HTML o XML** (o loro parti) all’utente; dominanti per la realizzazione di pagine dinamiche semplici e di uso frequente, sebbene vi siano maggiori problemi di controllo della correttezza e testing.
+
+## Funzionamento JSP
+Ogni volta che arriva una request, server compone dinamicamente il contenuto della pagina: Ogni volta che incontra un tag **`<%...%>`** valuta l’espressione Java contenuta al suo interno e inserisce al suo posto il risultato dell’espressione, permettendo di generare pagine dinamicamente.
+
+**Il Client si aspetta di ricevere tutto response header prima di response body**, quindi JSP deve effettuare tutte le modifiche all’header (ad es. modifica di cookie) prima di cominciare a creare body.<br>
+Una volta che Web server **comincia a restituire la risposta non può più interrompere il processo**, altrimenti il browser mostra solo la frazione parziale che ha ricevuto.
+
+```jsp
+<html>
+  <body>
+    <% String visitor=request.getParameter("name");
+      if (visitor == null) visitor = "World"; %>Hello, <%= visitor %>!
+  </body>
+</html>
+```
+<table>
+<tr><td>
+
+```http
+http://myHost/myWebApp/helloWorld.jsp
+```
+</td><td>
+
+```http
+http://myHost/myWebApp/helloWorld.jsp?name=Mario
+```
+</td></tr>
+<tr><td>
+
+```html
+<html>
+  <body>
+    Hello, World!
+  </body>
+</html>
+```
+</td><td>
+
+```html
+<html>
+  <body>
+    Hello, Mario!
+  </body>
+</html>
+```
+</td></tr></table>
+
+### Tag
+Le parti variabili della pagina sono contenute all’interno di tag speciali. Sono possibili due tipi di sintassi per questi tag: 
+- **Scripting-oriented tag**:  sono definite da delimitatori entro cui è presente lo scripting (self-contained), sono di quattro tipi:
+    1. **`<%! %>`**: Dichiarazione
+    2. **`<%= %>`**: Espressione
+    3. **`<% %>`**: Scriptlet
+    4. **`<%@ %>`**: Direttiva 
+- **XML-Oriented tag**, seguono la sintassi XML, equivalenti a quelli visti sopra:
+  1. **`<jsp:declaration>declaration</jsp:declaration>`**
+  2. **`<jsp:expression>expression</jsp: expression>`**
+  3. **`<jsp:scriptlet>java_code</jsp:scriptlet>`**
+  4. **`<jsp:directive.dir_type dir_attribute/>`**
+
+**Variabili e metodi**: Si usano i delimitatori **`<%!`** e **`%>`** per dichiarare variabili e metodi, che una volta dichiarati possono poi essere referenziati in **qualsiasi punto del codice** JSP. I metodi diventano metodi della servlet quando la pagina viene tradotta.
+
+```jsp
+<%! 
+String name = "Paolo Rossi";
+double[] prices = {1.5, 76.8, 21.5};
+
+double getTotal() {
+  double total = 0.0;
+  for (int i=0; i<prices.length; i++) {
+    total += prices[i];
+    return total;
+  }
+%>
+```
+
+**Espressioni**: Si usano i delimitatori **`<%=`** e **`%>`** per valutare espressioni Java. 
+>Il risultato dell’espressione viene convertito in stringa inserito nella pagina al posto del tag.
+
+```jsp
+<p>Sig. <%=name%>,</p>
+<p>l’ammontare del suo acquisto è: <%=getTotal()%> euro.</p>
+<p>La data di oggi è: <%=new Date()%></p>
+```
+
+**Scriplet**:
+Si usano **`<%`** e **`%>`** per aggiungere un frammento di codice Java eseguibile alla JSP (scriptlet). 
+>Lo scriptlet consente tipicamente di inserire logiche di controllo di flusso nella produzione della pagina.
+
+```jsp
+<% if (userIsLogged) { %>
+  <h1>Benvenuto Sig. <%=name%></h1>
+<% } else { %>
+  <h1>Per accedere al sito devi fare il login</h1>
+<% } %>
+```
+**Direttive**:
+Sono comandi JSP valutati a tempo di compilazione ▪ Le più importanti sono:
+- **page**: permette di importare package, dichiarare pagine d’errore, definire modello di esecuzione JSP relativamente alla concorrenza (ne discuteremo a breve), ecc.
+- **include**: include un altro documento
+- **taglib**: carica una libreria di custom tag implementate dallo sviluppatore
+
+```jsp
+<%@ page info="Esempio di direttive"%>
+<%@ page language="java" import="java.net.*" %>
+<%@ page import="java.util.List, java.util.ArrayList"%>
+<%@ include file="myHeaderFile.html" %>
+```
+
+## Built-in Objects (con scope differenziati)
+Le specifiche JSP definiscono 8 oggetti built-in (o impliciti) utilizzabili senza dover creare istanze. Rappresentano utili riferimenti ai corrispondenti oggetti Java veri e propri presenti nella tecnologia servlet:
+
+| Oggetto | Classe/Interfaccia
+-|-|
+`page` | `javax.servlet.jsp.HttpJspPage`
+`config` | `javax.servlet.ServletConfig`
+`request` | `javax.servlet.http.HttpServletRequest`
+`response` | `javax.servlet.http.HttpServletResponse`
+`out` | `javax.servlet.jsp.JspWriter`
+`session` | `javax.servlet.http.HttpSession`
+`application` | `javax.servlet.ServletContext`
+`pageContext` | `javax.servlet.jsp.PageContext`
+`exception` | `Java.lang.Throwable`
+
+<details><summary>Oggetti</summary>
+
+- `page`: L’oggetto `page` rappresenta l’istanza corrente della servlet. Ha come tipo l’interfaccia `HTTPJspPage` che discende da JSP page, la quale a sua volta estende `Servlet`. Può quindi essere utilizzato per accedere a tutti i metodi definiti nelle servlet:
+```jsp
+<%@ page info=“Esempio di uso page." %>
+  <p>Page info:
+  <%=page.getServletInfo() %>
+  </p>
+```
+- `config`: Contiene la configurazione della servlet (parametri di inizializzazione). Metodi di `config`: **`getInitParameterName()`** che restituisce tutti i nomi dei parametri di inizializzazione e **`getInitParameter(name)`** che restituisce il valore del parametro passato per nome.
+- `request`: È il parametro request passato al metodo `service()` della servlet. Consente l’accesso a tutte le informazioni relative alla richiesta HTTP: indirizzo di provenienza, URL, headers, cookie, parametri, ecc. 
+- `response`: Oggetto legato all’I/O della pagina JSP, rappresenta la risposta che viene restituita al client
+
+```jsp
+<%response.setDateHeader("Expires", 0);
+response.setHeader("Pragma", "no-cache");
+if (request.getProtocol().equals("HTTP/1.1")) {
+  response.setHeader("Cache-Control", "no-cache");
+}
+%>
+```
+- `out`: Oggetto legato all’I/O della pagina JSP. È uno stream di caratteri e rappresenta lo stream di output della pagina. 
+- `session`: Oggetto che fornisce informazioni sul contesto di esecuzione della JSP in termini di SESSIONE UTENTE. L’attributo session della direttiva page deve essere true affinché JSP partecipi alla sessione. Metodi di `session`: 
+  - `String getID()` restituisce ID di una sessione
+  - `boolean isNew()` dice se sessione è nuova
+  - `void invalidate()` permette di invalidare (distruggere) una sessione
+  - `long getCreationTime()` ci dice da quanto tempo è attiva la sessione (in ms)
+  - `long getLastAccessedTime()` ci dice quando è stata utilizzata l’ultima volta.
+
+```jsp
+<% UserLogin userData = new UserLogin(name, password);
+session.setAttribute("login", userData);
+%>
+<%UserLogin userData=(UserLogin)session.getAttribute("login");
+if (userData.isGroupMember("admin")) {
+  session.setMaxInactiveInterval(60*60*8);
+} else {
+  session.setMaxInactiveInterval(60*15);
+}
+%>
 ```
 
 # Javascript
