@@ -1518,6 +1518,7 @@ if (userData.isGroupMember("admin")) {
 }
 %>
 ```
+</details>
 
 # Javascript
 >JavaScript è un linguaggio di scripting sviluppato per dare interattività alle pagine HTML. Può essere inserito direttamente nelle pagine Web; in pratica è lo standard «client-side» per implementare pagine «dinamiche». Il codice JavaScript viene eseguito da un interprete contenuto all’interno del browser.
