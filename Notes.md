@@ -158,6 +158,7 @@
   - [Pattern DAO (Data Access Object)](#Pattern-DAO-Data-Access-Object)
     - [Esempio di DAO](#Esempio-di-DAO)
   - [Retrive (risoluzione del conflitto di impedenza)](#Retrive-risoluzione-del-conflitto-di-impedenza)
+    - [Lazy Load](#Lazy-Load)
 
 # URI e URL
 ## URI
@@ -2565,4 +2566,58 @@ public class FacadeImpl implements Facade {
 ```
 
 ## Retrive (risoluzione del conflitto di impedenza)
-> **Retrieve**: dal DB agli oggetti (ricostruzione degli oggetti a partire da dati persistenti). Il problema principale nel ricostruire oggetti a partire dalla base di dati consiste nel ricostruire i riferimenti. Le forze in gioco sono chiavi esterne contro riferimenti e join (operazione "non direzionale") contro navigazioni.
+> **Retrieve**: dal DB agli oggetti (ricostruzione degli oggetti a partire da dati persistenti). Il problema principale nel ricostruire oggetti a partire dalla base di dati consiste nel ricostruire i riferimenti. Le forze in gioco sono chiavi esterne contro riferimenti e join (operazione "**non direzionale**") contro navigazioni.
+
+![](Pictures/4-02-2.png)
+Come ricostruiamo l'oggetto `Ordine`?
+- Eseguo un **join** tra le tabelle `ORDINI` e `RIGHEORDINE`. È possibile che nella tabella `ORDINI` ci siano tuple per le quali non ci sono righe nella tabella `RIGHE_ORDINE`? Se la risposta è SI, allora devo usare un **outer join**
+- itero sul `ResultSet` e costruisco i vari oggetti `Ordine` e `RigaOrdine` opportunamente collegati
+
+Ma fino a quando devo costruire oggetti "inseguendo i riferimenti”?
+
+Possiamo dare una risposta a queste domande analizzando i casi d'uso e il modello del dominio. In particolare l'inseguimento dei riferimenti tra oggetti è guidato dalle operazioni offerte dal sistema. Nel progettare le classi, i riferimenti vanno messi considerando la direzione in cui le corrispondenti associazioni sono navigate dalle operazioni del sistema. 
+
+**Nota**: questo aspetto non ha rilevanza nella progettazione del database, perché i riferimenti sono implementati tramite valori e l'operatore di join *non è direzionale*.
+
+### Lazy Load
+
+Quando non ha senso costruire un oggetto completo, ricorriamo ad una tecnica, detta **Caricamento Pigro** (o **lazy load**), implementata tramite l'applicazione del **Pattern Proxy**. In pratica quello che vogliamo fare è caricare i dati solo quando questi sono effettivamente richiesti. È importante osservare che se il metodo `getOrdini()` non viene mai invocato, il costo di caricare i dati relativi agli ordini non viene mai pagato. Se decidiamo di implementare questa strategia nella classe `Cliente` mettiamo codice di gestione della persistenza in una classe del dominio. E se in futuro vogliamo cambiare strategia? Per implementare bene la strategia Lazy Load senza ridurre la coesione nella classe del modello è utile fare riferimento al pattern **Proxy**. Le classi `xxxDAOImpl` non restituiscono un bean “completo” ma un proxy. 
+
+>**Proxy**: ha il compito di gestire il caricamento degli oggetti collegati. Il proxy deve contenere tutte le informazioni necessarie per effettuare il caricamento “lazy”. Gli oggetti collegati vengono caricati solo su richiesta. Il proxy “simula” il comportamento del bean. Quando le classi `xxxDAOImpl` ricevono una richiesta viene eseguita una query sul DB, istanziato e restituito un oggetto del tipo richiesto. L’oggetto istanziato non è di tipo `xxxBean`, ma `xxxProxy`. La classe `xxxProxy` estende la corrispondente `xxxBean` e riscrive i metodi che devono implementare le operazioni onerose.
+
+Supponiamo di voler effettuare un caricamento pigro del cliente associato all'ordine:
+```java
+public class OrdineProxy extends Ordine {
+  private Cliente cliente;
+  ...
+    public Cliente getCliente() throws DAOException {
+      if(cliente == null) {
+        String query = "SELECT * FROM clienti WHERE clienti.codice = ?";
+        ...
+      }
+    }
+    return cliente;
+}
+```
+
+C'è un problema: non abbiamo il codice cliente! Coerentemente con l'approccio OO nella classe abbiamo un riferimento ad un oggetto `Cliente`. Questo dato è presente nella tabella `ORDINI` (**chiave esterna**), e quando abbiamo caricato l'ordine questo valore non è stato salvato in nessuna variabile!! Siamo costretti ad eseguire un **join** (ci sarebbe bastata una selezione)
+
+```java
+public class OrdineProxy extends Ordine {
+  private Cliente cliente;
+  ...
+  public Cliente getCliente() {
+    if(cliente == null) {
+      String query = "SELECT * FROM ordini JOIN clienti on ordini.idcliente = clienti.id WHERE ordini.id = ?";
+      // Esecuzione query
+      // con i dati restituiti viene costruito l'oggetto Cliente
+    }
+    return cliente;
+  }
+}
+```
+
+Il problema sorge quando navighiamo una relationship
+**uno-a-molti** o **uno-a-uno** seguendo il vincolo di
+integrità referenziale (la chiave esterna ). Per risolvere questo problema dobbiamo effettuare un
+join ( al posto di una semplice selezione )
