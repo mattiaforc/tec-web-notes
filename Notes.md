@@ -196,6 +196,9 @@
   - [Dispatcher Servlet](#Dispatcher-Servlet)
     - [Spring Handler](#Spring-Handler)
     - [Spring View](#Spring-View)
+- [AOP (Aspect Oriented Programming)](#AOP-Aspect-Oriented-Programming)
+  - [Elementi fondamentali del AOP](#Elementi-fondamentali-del-AOP)
+  - [AOP in Spring](#AOP-in-Spring)
 
 # URI e URL
 ## URI
@@ -2991,3 +2994,21 @@ ottenere un `HandlerExecutionChain` appropriato; poi
 Spring mette a disposizione anche componenti detti **“view resolver**” per semplificare rendering di un model su browser, senza legarsi a una specifica tecnologia per view. <br>**Interfacce fondamentali**:
 -   **`ViewResolver`** per effettuare mapping fra nomi view e reale implementazione di view
 -   **`View`** per preparazione richieste e gestione richiesta verso una tecnologia di view
+
+# AOP (Aspect Oriented Programming)
+>Aspect Oriented programming (AOP) come approccio di design
+e tecnica per semplificare l’applicazione di cross-cutting
+concern (problematiche trasversali alla logica applicativa, i.e. logging, locking, gestione degli eventi, gestione delle transazioni)
+
+## Elementi fondamentali del AOP
+-   **Joinpoint**: Punto ben definito del codice applicativo, anche determinato a runtime, dove può essere inserita logica addizionale
+-   **Advice**: Codice con logica addizionale che deve essere eseguito ad un determinato joinpoint
+-   **Pointcut**: Insieme di joinpoint usati per definire quando eseguire un advice. Controllo fine e flessibile su come applicare advice al codice applicativo. Pointcut possono essere composti in relazioni anche complesse per vincolare il momento di esecuzione dell’advice corrispondente.
+-   **Aspect**: combinazione di advice e pointcut
+-   **Weaving**: Processo dell’effettivo inserimento di aspect dentro il codice applicativo nel punto appropriato
+-   **Target**: Un oggetto il cui flusso di esecuzione viene modificato da qualche processo AOP. Viene anche indicato qualche volta come oggetto con **advice** (advised object).
+
+## AOP in Spring
+Spring realizza AOP sulla base dell’utilizzo di **proxy**. Se si desidera creare una classe **advised** (target), occorre uilizzare la classe `ProxyFactory` per **creare un proxy per un’istanza di quella classe**, fornendo a `ProxyFactory` tutti gli aspect con cui si desidera informare il proxy.
+
+Gli advice in Spring sono scritti in Java (nessun linguaggio AOP-specific). <br>I pointcut sono tipicamente specificati in file XML di configurazione. Spring **supporta solo joinpoint a livello di metodo** (ad esempio, impossibile associare advice alla modifica di un campo di un oggetto).
