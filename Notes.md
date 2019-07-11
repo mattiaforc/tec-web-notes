@@ -159,6 +159,43 @@
     - [Esempio di DAO](#Esempio-di-DAO)
   - [Retrive (risoluzione del conflitto di impedenza)](#Retrive-risoluzione-del-conflitto-di-impedenza)
     - [Lazy Load](#Lazy-Load)
+- [J2EE](#J2EE)
+  - [Model 2](#Model-2)
+  - [MVC](#MVC)
+    - [M - Model](#M---Model)
+    - [V - View](#V---View)
+    - [C - Controller](#C---Controller)
+  - [Application server, container](#Application-server-container)
+  - [EJB](#EJB)
+    - [Principi di EJB](#Principi-di-EJB)
+    - [Architettura EJB](#Architettura-EJB)
+      - [Descrittori di deployment](#Descrittori-di-deployment)
+  - [Componenti EJB](#Componenti-EJB)
+    - [Session Bean](#Session-Bean)
+      - [Stateless](#Stateless)
+      - [Stateful](#Stateful)
+    - [Entity Bean](#Entity-Bean)
+    - [MDB (Message Driven Bean)](#MDB-Message-Driven-Bean)
+  - [Metadati e Annotation](#Metadati-e-Annotation)
+  - [Servizi Container based](#Servizi-Container-based)
+    - [Pooling e concorrenza](#Pooling-e-concorrenza)
+    - [Transazionalità](#Transazionalit%C3%A0)
+    - [Gestione delle connessioni a risorse](#Gestione-delle-connessioni-a-risorse)
+    - [Persistenza (vedi Java Persistence API – JPA - e supporto Hibernate ORM)](#Persistenza-vedi-Java-Persistence-API-%E2%80%93-JPA---e-supporto-Hibernate-ORM)
+    - [Messaggistica](#Messaggistica)
+- [Spring](#Spring)
+  - [Inversion of Control (IoC) e Dependency Injection](#Inversion-of-Control-IoC-e-Dependency-Injection)
+  - [Integrazione con Web Tier e AOP](#Integrazione-con-Web-Tier-e-AOP)
+  - [Architettura di Spring](#Architettura-di-Spring)
+    - [Core package](#Core-package)
+      - [Bean Factory](#Bean-Factory)
+    - [MVC Package](#MVC-Package)
+    - [DAO Package](#DAO-Package)
+    - [ORM Package](#ORM-Package)
+    - [AOP Package](#AOP-Package)
+  - [Dispatcher Servlet](#Dispatcher-Servlet)
+    - [Spring Handler](#Spring-Handler)
+    - [Spring View](#Spring-View)
 
 # URI e URL
 ## URI
@@ -2621,3 +2658,336 @@ Il problema sorge quando navighiamo una relationship
 **uno-a-molti** o **uno-a-uno** seguendo il vincolo di
 integrità referenziale (la chiave esterna ). Per risolvere questo problema dobbiamo effettuare un
 join ( al posto di una semplice selezione )
+
+# J2EE
+>Piattaforma open e standard per lo sviluppo, il deployment e la
+gestione di applicazioni enterprise n-tier, Web-enabled,
+server-centric e basate su componenti
+
+## Model 2
+>Model 2 è un design pattern più complesso e articolato che separa
+chiaramente livello presentazione dei contenuti dalla logica
+utilizzata per manipolare e processare contenuti stessi, usualmente
+associato con paradigma
+Model-View-Controller (**MVC**) (ma da non confondere!)
+
+Proposta di separazione logica di business (servlet) da
+presentazione (JSP) , con le due parti viste come
+"**View**" e "**Controller**" rispettivamente. Parte di "**Model**" lasciata non specificata nell’architettura
+proposta da Govind (idea che ogni struttura dati possa essere adatta a
+realizzare modello: da Vector list a db relazionale)
+
+In applicazioni Web conformi a Model 2, le richieste del browser cliente vengono passate a controller (usualmente implementato
+da servlet oppure EJB Session Bean oppure...). 
+
+**Controller** si occupa di eseguire logica business necessaria per
+ottenere il contenuto da mostrare. Controller mette il contenuto
+(usualmente sotto forma di JavaBean o Plain Old Java Object - **POJO**) in
+messaggio e decide a quale view (usualmente implementata da
+JSP ) passare la richiesta
+
+**View** si occupa del rendering contenuto (ad es. stampa dei valori
+contenuti in struttura dati o bean, ma anche operazioni più complesse
+come invocazione metodi per ottenere dati)
+
+## MVC
+>Architettura adatta per applicazioni Web interattive (altre
+tecnologie e modelli più adatti per servizi asincroni, vedi Message Driven
+Bean e Java Messaging Service - JMS)
+### M - Model
+>Rappresenta livello dei dati, incluse operazioni per accesso e
+modifica. Model deve notificare view associate quando modello viene
+modificato e deve supportare:
+-   possibilità per view di interrogare stato di model
+-   possibilità per controller di accedere alle funzionalità incapsulate da model
+
+### V - View 
+>si occupa di rendering dei contenuti di model. Accede ai dati
+tramite model e specifica come dati debbano essere presentati:
+-   aggiorna presentazione dati quando modello cambia
+-   gira input utente verso controller
+
+### C - Controller
+>definisce comportamento dell’applicazione:
+-   fa dispatching di richieste utente e seleziona view per presentazione
+-   interpreta input utente e lo mappa su azioni che devono essere
+eseguite da model (in una GUI stand-alone, input come click e selezione
+menu; in una applicazione Web, richieste HTTP GET/POST)
+
+## Application server, container
+Architetture multi-tier:
+-   Complessità del middle tier server
+-   Duplicazione dei servizi di sistema per la maggior
+parte delle applicazioni enterprise
+-   Controllo concorrenza, transazioni
+-   Load-balancing, sicurezza
+-   Gestione risorse, connection pooling
+
+Come risolvere il problema?
+<br>**Container condiviso che gestisce i servizi di
+sistema**.
+Il **container** può fornire “automaticamente” molte delle funzioni per
+supportare il servizio applicativo verso l’utente:
+-   **Supporto al ciclo di vita**
+    -   Attivazione/deattivazione del servitore
+    -   Mantenimento dello stato (durata della sessione?)
+    -   Persistenza trasparente e recupero delle informazioni (interfaccia DB)
+-   **Supporto al sistema dei nomi**
+    -   Discovery del servitore/servizio
+    -   Federazione con altri container
+-   **Supporto alla qualità del servizio**
+    -   Tolleranza ai guasti , selezione tra possibili deployment
+    -   Controllo della QoS richiesta e ottenuta
+
+## EJB
+>Tecnologia per componenti server-side, che permette lo sviluppo e deployment semplificato di applicazioni Java: Distribuite, con supporto alle transazioni, multi-tier, portabili, scalabili, sicure, ...
+-   Porta e amplifica i benefici del modello a componenti
+sul lato server. 
+-   Separazione fra logica di business e codice di sistema: Container per la fornitura dei servizi di sistema
+-   Modello a container pesante (contrapposto a possibili
+modelli alternativi, come container leggero Spring): Rende possibile (e semplice) la configurazione a
+deployment-time (**Deployment descriptor**)
+
+### Principi di EJB
+
+-   Applicazioni EJB e i loro componenti devono
+essere debolmente accoppiati (**loosely coupled**)
+-   Comportamento di EJB definito tramite interfacce. 
+-   Applicazioni EJB **NON** si occupano della gestione delle risorse 
+-   Applicazioni EJB sono N-tier
+    -   **Session tier** come API verso l’applicazione
+    -   **Entity tier** come API verso le sorgenti dati
+
+### Architettura EJB
+>**Container pesante** attivo all’interno di un **EJB Server** (Application Server)<br>
+Cliente può interagire remotamente con componente EJB tramite interfacce ben definite passando **SEMPRE** attraverso container.
+
+![](Pictures/5-1-1.png)
+
+**Ciclo di vita delle applicazioni J2EE**:
+-   Sviluppo e compilazione del codice dei componenti (Servlet, JSP, EJB)
+-   Scrittura di **deployment descriptor** per i componenti (possibili annotazioni da JavaEE5)
+
+#### Descrittori di deployment
+Forniscono **istruzioni al container** su come gestire
+e controllare il comportamento (anche runtime) di
+componenti J2EE: Transazioni, Sicurezza, Persistenza,...<br>
+Permettono la personalizzazione tramite **specifica
+dichiarativa** (**NO** personalizzazione tramite programmazione). Semplificano portabilità del codice, sostituiti o sostituibili con annotazioni a partire da
+Java5.
+
+## Componenti EJB
+
+![](Pictures/5-1-2.png)
+
+### Session Bean
+-   Lavorano tipicamente per un singolo cliente
+-   Non sono persistenti (vita media relativamente breve)
+-   Persi in caso di failure di EJB server
+-   Non rappresentano dati in un DB , anche se possono
+accedere/modificare questi dati
+
+Usati per modellare oggetti di processo o di controllo **specifici per un particolare cliente**, modellare workflow o attività di gestione e per coordinare
+interazioni fra bean, muovere la **logica applicativa di business** dal lato cliente a
+quello servitore
+#### Stateless
+Esegue una richiesta e restituisce risultato senza salvare alcuna informazione di stato relativa al cliente.<br>**Transienti**, elemento **temporaneo** di business logic necessario per uno specifico cliente per un **intervallo di tempo limitato**.
+#### Stateful
+Può mantenere stato specifico per un cliente
+
+### Entity Bean
+>Forniscono una **vista ad oggetti** dei dati mantenuti in un database
+
+- Tempo di vita **non connesso alla durata delle interazioni**
+con i clienti
+-   Componenti permangono nel sistema fino a che i dati
+esistono nel database - **long lived**
+-   Nella maggior parte dei casi, **componenti  sincronizzati** con relativi database relazionali
+-   **Accesso condiviso** per clienti **differenti**
+
+### MDB (Message Driven Bean)
+
+>Svolgono il ruolo di consumatori di messaggi asincroni
+
+-   **Non possono essere invocati direttamente** dai clienti
+-   **Attivati in seguito all’arrivo** di un messaggio
+-   I clienti possono interagire con MDB tramite l’invio di
+messaggi verso le code o i topic per i quali questi componenti
+sono in ascolto (**listener**)
+-   **Privi di stato**
+
+## Metadati e Annotation
+Elementi descrittivi (metadati) associabili a:
+package, classi e interfacce, costruttori, metodi,campi
+parametri, variabili.<br>Informazioni che aggiungono espressività agli elementi del
+linguaggio. Strutturati come **insiemi di coppie nome=valore**. Lette e gestite dal compilatore o da strumenti esterni: non
+influenzano direttamente la semantica del codice ma il modo
+in cui il codice può essere trattato da strumenti e librerie , che
+a sua volta può influenzare il comportamento runtime. <br>**Reperibili anche a runtime**.
+
+## Servizi Container based
+Quali **servizi di supporto/sistema** e
+come vengano supportati in un modello a **container pesante**?
+### Pooling e concorrenza
+Migliaia fino a milioni di oggetti in uso simultaneo, gestiti in due possibili modi:
+-   **Resource Pooling**: Pooling dei componenti server-side da parte di EJB container
+(**instance pooling**). L'idea base è di **evitare di mantenere una istanza separata di ogni EJB per ogni cliente**. Si applica a **stateless session bean** e **message-driven bean**. Possibile anche pooling dei connector.<br>Ogni EJB container **mantiene un insieme di istanze del
+bean** pronte per servire richieste cliente. Non esiste stato di sessione da mantenere fra richieste
+successive; ogni invocazione di metodo è
+indipendente dalle precedenti. 
+-   **Activation**: Utilizzata da **stateful session bean** per risparmiare risorse. Gestione della coppia **oggetto EJB + istanza di bean stateful**.
+    -   **Passivation** : **disassociazione fra stateful bean instance e suo oggetto EJB**, con salvataggio dell’istanza su memoria (**serializzazione**).
+    -   **Activation** : recupero dalla memoria (**deserializzazione**) dello stato dell’istanza e riassociazione con oggetto EJB. La procedura di activation può essere associata anche all’invocazione di metodi di callback sui cambi di stato nel ciclo di vita di uno stateful session bean (i.e. **`@javax.ejb.PostActivate`** associa l’invocazione del metodo a cui si applica immediatamente dopo l’attivazione di un’istanza)
+
+Per definizione, session bean **non possono essere concorrenti**, nel senso che una singola istanza è
+associata ad un singolo cliente. Vietato l’utilizzo di thread a livello applicativo e, ad esempio, della
+keyword synchronized.
+
+### Transazionalità
+-   Proprietà **ACID** (Atomicity, Consistency, Isolation e Durability)
+>Transazione come unità indivisibile di processamento ; può terminare con un commit o un rollback
+
+**Demarcazione automatica e Container-Managed Transaction**:
+-   Tipologia di default
+-   Transazione associata con l’intera esecuzione di un metodo
+(**demarcazione automatica della transazione**: inizio
+immediatamente prima dell’esecuzione del metodo e commit
+immediatamente prima della terminazione del metodo)
+-   NON si possono utilizzare metodi per la gestione delle transazioni che
+interferiscano con la gestione automatica del container
+
+### Gestione delle connessioni a risorse
+Un componente può avere bisogno di utilizzare altri componenti e
+risorse , come database e sistemi di messaging, ad esempio.<br>In Java EE il ritrovamento delle risorse desiderate è basato su un
+sistema di nomi ad alta portabilità come **Java Naming an Directory Interface** (**JNDI**).<br>
+Se un componente usa **resource injection**, sarà il container a
+utilizzare JNDI per ritrovare la risorsa desiderata, e non il
+componente stesso com’era usuale prima di EJB3.0<br>
+In particolare, relativamente a risorse a database, **connection pooling**: connessioni sono riutilizzabili per ridurre latenza e
+incrementare prestazioni nell’accesso a DB
+
+### Persistenza (vedi Java Persistence API – JPA - e supporto Hibernate ORM)
+
+Supporto alla persistenza similare nel mondo Java:
+-   Entity Bean come componenti EJB in EJB2.x
+-   Supporto alla persistenza integrato nel modello a container
+pesante
+
+**Java Persistence API (JPA)** nelle ultime versioni
+-   Evoluzione verso API di Java persistence comuni
+-   Integrata l’esperienza e il feedback da Hibernate, Java Data
+Objects, TopLink, e precedenti versioni di tecnologia EJB
+
+### Messaggistica
+**Java Messaging System** (**JMS**) come servizio di supporto J2EE:
+>Specifica che definisce come un cliente JMS acceda alle
+funzionalità supportate da un sistema di messaging di livello enterprise. Solitamente: ▪ Produzione,  distribuzione e consegna di messaggi
+
+Semantiche di consegna supportate:
+-   sincrona/asincrona
+-   transacted
+-   garantita
+-   durevole
+
+Supporto ai principali modelli di messaging in uso: Point-to-Point (code affidabili) e Publish/Subscribe
+
+# Spring
+>Implementazione di **modello a container leggero** per
+la costruzione di applicazioni Java SE e Java EE. Spring rappresenta un approccio piuttosto unico verso
+tecnologie a microcontainer, tipo **Spring come framework modulare**: Architettura a layer,
+possibilità di utilizzare anche solo alcune parti in isolamento. Anche possibilità di introdurre Spring incrementalmente in progetti esistenti e di imparare ad utilizzare la tecnologia “pezzo per pezzo”.
+
+**Funzionalità chiave**:
+## Inversion of Control (IoC) e Dependency Injection
+Gestione della configurazione dei componenti applica principi di **Inversion-of-Control** e utilizza **Dependency Injection**. Eliminazione quindi  della necessità di binding “manuale” fra componenti. Idea fondamentale di una **factory per componenti** (`BeanFactory`) utilizzabile globalmente. Si occupa fondamentalmente del ritrovamento di oggetti per nome e della **gestione delle relazioni fra oggetti (configuration management**).
+
+Il container (in realtà il container leggero di Spring) si occupa di
+risolvere (**injection**) le dipendenze dei componenti attraverso
+l’opportuna configurazione dell’implementazione dell’oggetto (**push**). Opposta ai pattern più classici di **istanziazione di componenti** o **Service Locator**, dove è il componente che deve
+determinare l’implementazione della risorsa desiderata (**pull**).
+
+**Benefici:**
+-   **Flessibilità**: Eliminazione di codice di lookup nella logica di business
+-   **Possibilità e facilità di testing**: Nessun bisogno di **dipendere da risorse esterne o da container** in fase di testing. Possibilità di abilitare testing automatico. 
+-   **Manutenibilità**: Permette riutilizzo in diversi ambienti applicativi cambiando semplicemente i file di configurazione (o in generale le specifiche di dependency injection) e non il codice
+
+|Senza Dependency Injection | Con Depencency Injection
+-|-|
+![](Pictures/5-2-2.png) | ![](Pictures/5-2-3.png)
+Un oggetto/componente deve esplicitamente istanziare gli oggetti/componenti di cui ha necessità (sue dipendenze). Accoppiamento stretto tra oggetti/componenti | Supporto a dependency injection **si occupa di creare oggetti/comp quando necessario** e di passarli automaticamente agli oggetti/comp che li devono utilizzare. <br>Idea base per implementazione: costruttori in oggetto A che accettano B e C come parametri di ingresso, oppure A contiene metodi setter che accettano interfacce B e C come parametri di ingresso.
+
+Le risorse di cui un bean ha necessità sono “iniettate” (injected) quando **l’istanza del bean viene effettivamente costruita dal container**.
+
+## Integrazione con Web Tier e AOP
+>**Web Tier**: Framework MVC per applicazioni Web, costruito sulle
+funzionalità base di Spring, con supporto per diverse
+tecnologie per la generazione di viste , ad es. JSP,
+FreeMarker, Velocity, Tiles, iText e POI (Java API per
+l’accesso a file in formato MS).
+
+>**AOP**: Framework di supporto a servizi di sistema, come gestione delle transazioni, tramite tecniche AOP. Miglioramento soprattutto in termini di modularità.
+
+## Architettura di Spring
+![](Pictures/5-2-1.png)
+### Core package
+>Parte fondamentale del framework. Consiste in un container leggero che si occupa di Inversion of Control (o Dependency Injection).
+
+L’elemento fondamentale è **BeanFactory**, che fornisce una implementazione estesa del pattern factory ed elimina la necessità di gestione di singleton a livello di programmazione, permettendo di disaccoppiare configurazione e dipendenze dalla logica applicativa.
+#### Bean Factory
+L’oggetto **`BeanFactory`** è responsabile della **gestione dei bean che usano Spring e delle loro dipendenze**. Ogni applicazione interagisce con la dependency injection di Spring (IoC container) tramite l’interfaccia `BeanFactory`. Oggetto `BeanFactory` viene creato dall’applicazione, tipicamente nella forma di `XmlBeanFactory` e una volta creato, l’oggetto `BeanFactory` **legge un file di configurazione e si occupa di fare l’injection (wiring)**.
+
+Come fa `BeanFactory` a trovare il bean richiesto (pattern singleton come comportamento di default)?<br>
+Ogni bean deve avere un nome unico all’interno della `BeanFactory` contenente:
+-   Se un tag `<bean>` ha un attributo di nome **id**, il valore di questo attributo viene usato come nome
+-   Se non c’è attributo id, Spring cerca un attributo di nome **name**
+-   Se non è definito né id né name, Spring usa il **nome della classe del bean** come suo nome
+
+### MVC Package 
+>Ampio supporto a progettazione e sviluppo secondo
+architettura Model-View-Controller (MVC) per applicazioni
+Web. 
+
+Supporto a componenti “controller” , responsabili per interpretare richiesta utente e interagire con business object applicazione.<br>
+Una volta che il controller ha ottenuto i risultati (parte “model”), decide a quale “view” fare forwarding del model; `view` utilizza i dati in model per creare presentazione verso l’utente.
+
+### DAO Package
+>Livello di astrazione che non rende più necessario codice ripetitivo (boilerplate code) per JDBC, né parsing di codici di
+errore database-specific. <br>Gestione delle transazioni sia da codice che in modo dichiarativo, **non solo per classi che implementano interfacce speciali** (possibilità aperta a tutti oggetti Java)
+
+### ORM Package
+>Livello di integrazione con soluzioni diffuse per ORM, come
+JPA, JDO, Hibernate, iBatis, ...<br>Le varie soluzioni ORM suddette possono essere usate in
+combinazione con le altre funzionalità di Spring, come la
+gestione dichiarativa delle transazioni => Spring come
+tecnologia di integrazione.
+
+### AOP Package 
+Implementazione di aspect-oriented programming conforme
+allo standard AOP Alliance . Permette di definire, ad
+esempio, intercettori di metodo e pointcut per
+disaccoppiamento pulito.<br>Possibilità di utilizzare metadati a livello sorgente per incorporare informazioni aggiuntive di comportamento all’interno del codice
+
+## Dispatcher Servlet
+Progettato attorno a una servlet centrale che fa da dispatcher delle richieste (**`DispatcherServlet`**). Completamente integrata con IoC container di Spring. `DispatcherServlet` come “Front Controller”. `DispatcherServlet` è una normale servlet e quindi serve URL mapping tramite `web.xml`.
+
+![](Pictures/5-2-4.png)
+-   Intercetta le HTTP Request in ingresso che giungono al Web container
+-   Cerca un controller che sappia gestire la richiesta
+-   Invoca il controller ricevendo un model (output business logic) e
+una view (come visualizzare output)
+-   Cerca un View Resolver opportuno tramite cui scegliere View e creare HTTP Response
+
+![](Pictures/5-2-5.png)
+
+-   Viene cercato un handler appropriato. Se trovato, viene configurata una catena di esecuzione associata all’handler (preprocessori, postprocessori e controller); risultato è preparazione di model. Se restituito un model, viene girato alla view associata.
+
+### Spring Handler
+Funzionalità base: fornitura di `HandlerExecutionChain` , che contiene un handler per la richiesta e può contenere una **lista di handler interceptor** da applicare alla richiesta, prima o dopo
+esecuzione handler. All’arrivo di una richiesta, `DispatcherServlet` la gira a handler per
+ottenere un `HandlerExecutionChain` appropriato; poi
+`DispatcherServlet` esegue i vari passi specificati nella chain.
+
+### Spring View
+Spring mette a disposizione anche componenti detti **“view resolver**” per semplificare rendering di un model su browser, senza legarsi a una specifica tecnologia per view. <br>**Interfacce fondamentali**:
+-   **`ViewResolver`** per effettuare mapping fra nomi view e reale implementazione di view
+-   **`View`** per preparazione richieste e gestione richiesta verso una tecnologia di view
