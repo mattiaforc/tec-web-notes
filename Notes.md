@@ -159,6 +159,21 @@
     - [Esempio di DAO](#Esempio-di-DAO)
   - [Retrive (risoluzione del conflitto di impedenza)](#Retrive-risoluzione-del-conflitto-di-impedenza)
     - [Lazy Load](#Lazy-Load)
+- [Transazioni](#Transazioni)
+  - [ACID](#ACID)
+    - [A - Atomicità](#A---Atomicit%C3%A0)
+    - [C - Consistenza](#C---Consistenza)
+    - [I - Isolamento](#I---Isolamento)
+    - [D - Durabilità (o Persistenza)](#D---Durabilit%C3%A0-o-Persistenza)
+  - [Conflitti e concorrenza](#Conflitti-e-concorrenza)
+    - [Conflitto WR (Reading uncommitted data)](#Conflitto-WR-Reading-uncommitted-data)
+    - [Conflitto RW (Unrepeatable Read)](#Conflitto-RW-Unrepeatable-Read)
+    - [Conflitti WW (Overwriting uncommitted data)](#Conflitti-WW-Overwriting-uncommitted-data)
+    - [Livelli di isolamento](#Livelli-di-isolamento)
+      - [SQL](#SQL)
+      - [JDBC](#JDBC)
+  - [JTA (Java Transaction API)](#JTA-Java-Transaction-API)
+  - [Transazioni in Hibernate](#Transazioni-in-Hibernate)
 - [J2EE](#J2EE)
   - [Model 2](#Model-2)
   - [MVC](#MVC)
@@ -2664,6 +2679,160 @@ Il problema sorge quando navighiamo una relationship
 **uno-a-molti** o **uno-a-uno** seguendo il vincolo di
 integrità referenziale (la chiave esterna ). Per risolvere questo problema dobbiamo effettuare un
 join ( al posto di una semplice selezione )
+
+# Transazioni
+>Una transazione è una **sequenza di operazioni** che può concludersi con un successo o un
+insuccesso. In caso di successo il risultato delle operazioni deve essere permanente, altrimenti in caso di insuccesso si deve tornare allo stato
+precedente all'inizio della transazione. <br>È una parte di programma caratterizzata da un inizio
+(begin-transaction, start transaction in SQL),
+una fine (end-transaction, non esplicitata in SQL) e
+al cui interno deve essere eseguito una e una sola
+volta uno dei seguenti comandi: **commit work** per terminare correttamente o **rollback work**
+per abortire la transazione.
+
+## ACID
+### A - Atomicità
+Una transazione è una **unità atomica** (tutto o niente) di
+elaborazione. È fondamentale per garantire l'integrità dei dati. Se qualcosa va storto il sistema deve essere in grado di annullare tutti i cambiamenti fatti a partire dall'inizio della transazione. <br>La base di dati non può essere lasciata in uno **stato intermedio**: un guasto o un errore prima del commit debbono causare l'annullamento (**UNDO**) delle operazioni svolte, mentre un guasto o errore dopo il commit non devono avere conseguenze.
+
+### C - Consistenza
+La transazione rispetta i vincoli di integrità, quindi:
+se lo **stato iniziale è corretto**, anche lo **stato finale è corretto**.
+
+### I - Isolamento
+>La transazione non risente degli effetti delle altre
+transazioni concorrenti.
+
+L'esecuzione concorrente di una collezione di
+transazioni deve produrre un risultato che si
+potrebbe ottenere con una esecuzione sequenziale, quindi una transazione **non deve mai esporre i suoi stati intermedi**.
+
+### D - Durabilità (o Persistenza)
+Gli effetti di **una transazione andata in commit non vanno perduti** ("durano per sempre"), anche in
+presenza di guasti.
+
+## Conflitti e concorrenza
+Se la proprietà di isolamento non è completamente
+soddisfatta, due (o più) transazioni effettuate su un
+database consistente **possono portare il database in
+uno stato inconsistente**.<br>
+Due azioni sullo stesso oggetto si dicono essere **in confitto** se almeno una delle due è una **operazione di scrittura**.
+
+Date due transazioni, `T1` e `T2` in conflitto, si possono verificare **tre tipologie di situazioni anomale**:
+
+### Conflitto WR (Reading uncommitted data)
+Si può verificare una anomalia se una transazione `T2`
+**legge un dato che è stato modificato** da una
+transazione `T1` non ancora conclusa (quindi
+**uncommitted**). Porta quindi a **letture sporche**.
+
+### Conflitto RW (Unrepeatable Read) 
+Si possono verificare diverse anomalie se una
+transazione `T2` **cambia il valore di un dato che è stato
+letto** da una transazione `T1` mentre `T1` è ancora in
+esecuzione. In particolare, questa situazione può generare: **perdita di aggiornamento**, **lettura inconsistente** (unrepeatable read)
+
+### Conflitti WW (Overwriting uncommitted data)
+Si possono verificare anomalie se una transazione `T2`
+**sovrascrive il valore di un dato che è già stato modificato** da una transazione `T1`, mentre `T1` è ancora
+in esecuzione. Questa situazione può generare **effetti fantasma**.
+
+### Livelli di isolamento 
+#### SQL
+**SERIALIZABLE** assicura che
+-   la transazione `T` legge solo cambiamenti fatti da transazioni concluse
+-   nessun valore letto o scritto da `T` verrà cambiato da altre transazione
+finché `T` non è conclusa
+-   se `T` legge un insieme di valori acceduti secondo qualche condizione
+di ricerca, l'insieme non viene modificato da altre transazione finché
+`T` non è conclusa. <br><br>*Evita tutte le anomalie*.
+
+**REPEATABLE READ** assicura che
+-   la transazione `T` legge solo cambiamenti fatti da transazioni concluse
+- nessun valore letto o scritto da `T` verrà cambiato da altre transazione
+finché `T` non è conclusa.<br><br>*Evita tutte le anomalie esclusi gli inserimenti fantasma*.
+
+**READ COMMITTED** assicura che
+- la transazione `T` legge solo cambiamenti fatti da transazioni concluse
+- `T` non vede nessun cambiamento eventualmente effettuato da
+transazioni concorrenti non concluse tra i valori letti all'inizio di `T`.<br><br>*Evita letture sporche ma permette letture inconsistenti, aggiornamenti fantasma e inserimenti fantasma*.
+
+**READ UNCOMMITTED**:
+- a questo livello di isolamento una transazione `T` può leggere
+modifiche fatte ad un oggetto da un transazione in esecuzione;
+ovviamente l'oggetto può essere cambiato mentre `T` è in esecuzione.
+Quindi `T` è soggetta a effetti fantasma. <br><br>*Permette letture sporche, letture inconsistenti, aggiornamenti fantasma e inserimenti fantasma*.
+
+#### JDBC
+Scelta della modalità delle transazioni: un metodo
+definito nell'interfaccia `Connection`: **`setAutoCommit(boolean autoCommit)`**. 
+
+Il metodo **`setTransactionIsolation()`** permette di
+modificare il livello di isolamento delle transazioni. Riceve un parametro intero che può assumere uno dei valori costanti definiti nella interfaccia `Connection`:
+-   `TRANSACTION_NONE`: le transazioni non vengono
+supportate.
+-   `TRANSACTION_READ_UNCOMMITTED`: nessun livello di
+isolamento è garantito, quindi possono presentarsi
+tutte le anomalie.
+-   `TRANSACTION_READ_COMMITTED`: vengono
+prevenute solo le letture sporche. Le altre anomalie
+possono ancora presentarsi.
+-   `TRANSACTION_REPEATABLE_READ`: possono
+presentarsi solo inserimenti fantasma.
+-   `TRANSACTION_SERIALIZABLE`: è il massimo livello di
+isolamento. Nessuna anomalia può presentarsi.
+
+L'interfaccia `DatabaseMetaData` offre metodi per
+reperire informazioni sul DBMS. In particolare, per verificare il supporto alle transazioni, abbiamo i metodi:
+-   **`supportsTransactions()`**: restituisce true se le
+transazioni sono supportate dal database, false se
+non lo sono. In questo ultimo caso, il metodo
+`commit()` non esegue alcuna operazione e il livello
+di isolamento è sempre `TRANSACTION_NONE`.
+-   **`supportsTransactionIsolationLevel(int)`**:
+permette di sapere se il DBMS supporta il livello di
+isolamento passato come parametro (secondo le
+costanti definite dall'interfaccia Connection nella
+slide precedente)
+
+## JTA (Java Transaction API)
+>Fornisce un servizio per la gestione di transazioni distribuite per la piattaforma J2EE. Una **transazione distribuita coinvolge un transaction manger e uno o più resource manger** (ovvero qualunque tipo di datastore persistente). Il transaction manger è responsabile del
+coordinamento di tutti i partecipanti alla
+transazione.
+
+![](Pictures/4-3-1.png)
+
+JTA permette l’interazione con lo sviluppatore
+mediante l’interfaccia **`javax.transaction.UserTransaction`** e i metodi `begin()`, `commit()` e `rollback()`.
+
+## Transazioni in Hibernate
+Hibernate **astrae dalle API JDBC/JTA sottostanti**, il livello di applicazione può essere trasparente a
+questi dettagli. <br>Hibernate espone l’interfaccia
+**`org.hibernate.Transaction`** che permette di lavorare “on top” a JDBC e JTA. Rappresenta la demarcazione unificata delle transazioni. Il maggior beneficio di Hibernate rispetto a JDBC e JTA è di permettere stretta integrazione con il contesto di persistenza (i.e. flush automatico di `Session` al `commit`)
+
+Una `Session` Hibernate si dice essere “pigra”; questo
+è un punto a favore di Hibernate. La `Session` non consuma alcuna risorsa fino a che le stesse non sono strettamente necessarie. Solo all’inizio di una transazione viene resa disponibile una `Connection` dal pool di connessioni. La chiamata `beginTransaction()` si traduce in `setAutoCommit(false)` nella `Connection` JDBC
+corrispondente.
+
+Il blocco di statement SQL di una transazione sono
+eseguiti seguendo la regola “il più tardi possibile” (write-behind), ovvero **al flushing del contesto di persistenza** della `Session`. Ciò accade di default al `commit()` di `Transaction`.
+
+In caso di accesso concorrente, affinché non
+occorrano anomalie di tipo lost-update , Hibernate
+prevede la possibilità di abilitare un meccanismo di
+**locking ottimistico** tale che nel momento in cui viene
+invocato il flushing , **verifica se la porzione della base di dati che sarà modificata non sia cambiata**; se è cambiata lancia una eccezione `StaleObjectStateException`. Per abilitare il locking ottimistico , nell'elemento `class` del file di mapping relativo alla classe su cui verte la modifica, è necessario definire l'attributo `optimistic-lock` pari a `all`.
+
+Hibernate applica il **pattern session-per-conversation**:
+è necessario disabilitare il flushing automatico
+chiamando il metodo **`setFlushMode(FlushMode.MANUAL)`**
+quando la sessione è aperta. L'isolamento è garantito in quanto, abilitando il locking ottimistico , le modiche fatte in transazioni concorrenti sono riconosciute. L'atomicità è garantita dal fatto che il flushing viene
+eseguito solo al termine della transazione, e se la
+sessione viene chiusa senza fare il flushing, la
+transazione viene abortita.
+
+Per la gestione efficiente di accessi concorrenti
+Hibernate sfrutta la tecnica **Optimistic Concurrency Control (OCC)**. OCC si basa sull’assunzione che la **maggior parte delle transazioni verso DB non sono in conflitto con altre transazioni**; questo permette di essere piuttosto “permissivi” nel rilasciare la possibilità di esecuzione.
 
 # J2EE
 >Piattaforma open e standard per lo sviluppo, il deployment e la
