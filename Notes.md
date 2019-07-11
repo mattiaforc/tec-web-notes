@@ -340,6 +340,10 @@ La differenza principale tra HTTP 1.0 e 1.1 è la possibilità di specificare co
 ### Pipeling 
 >Il pipelining consiste nell’invio di molteplici richieste da parte del client prima di terminare la ricezione delle risposte. Le risposte debbono però essere date nello stesso ordine delle richieste , poiché non è specificato un metodo esplicito di associazione tra richiesta e risposta.
 
+- **HTTP/1.1 without pipelining**: Each HTTP request over the TCP connection must be responded to before the next request can be made.
+- **HTTP/1.1 with pipelining**: Each HTTP request over the TCP connection may be made immediately without waiting for the previous request's response to return. The responses will come back in the same order.
+- **HTTP/2 multiplexing**: Each HTTP request over the TCP connection may be made immediately without waiting for the previous response to come back. The responses may come back in any order.
+
 ## Messaggi HTTP
 È definito da due strutture:
 >**Message Header**: contiene tutte le informazioni  necessarie per identificazione del messaggio (più in generale tutte le intestazioni del messaggio).
