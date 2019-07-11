@@ -199,6 +199,9 @@
 - [AOP (Aspect Oriented Programming)](#AOP-Aspect-Oriented-Programming)
   - [Elementi fondamentali del AOP](#Elementi-fondamentali-del-AOP)
   - [AOP in Spring](#AOP-in-Spring)
+- [JSF (Java Server Faces)](#JSF-Java-Server-Faces)
+  - [Ciclo di vita JSF](#Ciclo-di-vita-JSF)
+  - [Templating](#Templating)
 
 # URI e URL
 ## URI
@@ -3012,3 +3015,88 @@ concern (problematiche trasversali alla logica applicativa, i.e. logging, lockin
 Spring realizza AOP sulla base dell’utilizzo di **proxy**. Se si desidera creare una classe **advised** (target), occorre uilizzare la classe `ProxyFactory` per **creare un proxy per un’istanza di quella classe**, fornendo a `ProxyFactory` tutti gli aspect con cui si desidera informare il proxy.
 
 Gli advice in Spring sono scritti in Java (nessun linguaggio AOP-specific). <br>I pointcut sono tipicamente specificati in file XML di configurazione. Spring **supporta solo joinpoint a livello di metodo** (ad esempio, impossibile associare advice alla modifica di un campo di un oggetto).
+
+# JSF (Java Server Faces)
+>Framework per applicazioni Web, tecnologia fortemente basata su componenti, sia da inserire nelle pagine Web, sia collegati tramite essi a componenti server-side (backing bean).
+
+Ricche API per **rappresentazione componenti e gestione loro stato, gestione eventi , validazione e conversione dati server-side, definizione percorso navigazione pagine, supporto a internazionalizzazione**. 
+Ampia libreria di tag per aggiungere componenti a pagine Web e per collegarli a componenti server-side. On top del supporto Java Servlet e come alternativa a JSP.
+
+Si può costruire un backing bean (o managed bean) con annotazione `@ManagedBean`, che registra automaticamente il componente come risorsa utilizzabile all’interno del container JSF, da parte di tutte le pagine che conoscano come riferirlo.
+
+```java
+package hello;
+import javax.faces.bean.ManagedBean;
+
+@ManagedBean
+public class Hello {
+    final String world = "Hello World!";
+    public String getworld() {
+    return world; }
+}
+```
+Configurati nella seconda parte di faces-config.xml
+Semplici JavaBean che seguono regole standard:
+-   Costruttore senza argomenti (empty)
+-   No variabili di istanza public
+-   Metodi “accessor” per evitare accesso diretto a campi
+-   Metodi get Xxx() e set Xxx()
+
+JSF Managed Bean hanno anche metodi cosiddetti "**action**": Invocati automaticamente in risposta ad azione utente o evento.<br>Quattro possibili **scope**:
+-   **Application** - singola istanza per applicazione
+-   **Session** - nuova istanza per ogni nuova sessione utente
+-   **Request** - nuova istanza per ogni richiesta
+-   **Scopeless** - acceduta anche da altri bean e soggetta a garbage collection come ogni oggetto Java
+
+
+Poi facile costruzione di pagina Web, scritta in XHTML , che usi il backing bean: Facelets come linguaggio per costruzione di view JSF e di alberi di componenti (supporto a XHTML, tag library per Facelets/JSF, supporto per EL, templating per componenti e
+pagine Web).
+
+In tecnologia JSF, è inclusa servlet predefinita,
+chiamata `FacesServlet` , che **si occupa di gestire richieste per pagine JSF**. Serve mapping tramite solito descrittore di deployment (`web.xml`)
+
+Inoltre, necessità di file configurazione specifico per JSF: `faces-config.xml`, soprattutto per configurazione navigation rule e managed bean.<br>
+Ogni regola di navigazione è come un flowchart con un ingresso e uscite multiple possibili. Un singolo `<from-view-id>` per fare match con URI
+Quando restituito controllo, stringa risultato viene valutata (ad es. success,
+failure, verify, login):
+-   `<from-outcome>` deve fare match con stringa risultato
+-   `<to-view-id>` determina URI verso cui fare forwarding
+
+```xml
+<navigation-rule>
+    <from-view-id>/login.xhtml</from-view-id>
+    <navigation-case>
+        <from-action>#{LoginForm.login}</from-action>
+        <from-outcome>success</from-outcome>
+        <to-view-id>/storefront.xhtml</to-view-id>
+    </navigation-case>
+    <navigation-case>
+    <from-action>#{LoginForm.logon}</from-action>
+        <from-outcome>failure</from-outcome>
+        <to-view-id>/logon.xhtml</to-view-id>
+    </navigation-case>
+</navigation-rule>
+```
+
+## Ciclo di vita JSF
+-   **Deployment** dell’applicazione su server; prima che arrivi prima
+richiesta utente, applicazione in stato non inizializzato (anche non
+compilato...)
+-   Quando arriva una richiesta, viene creato un **albero dei componenti** contenuti nella pagina (messo in FacesContext), con validazione e conversione dati automatizzata
+-   Albero dei componenti viene popolato con valori da **backing bean (uso di espressioni EL)**, con possibile gestione eventi e handler
+-   Viene **costruita una view sulla base dell’albero dei componenti**
+-   **Rendering della vista al cliente**, basato su albero componenti
+-   Albero componenti **deallocato automaticamente**
+-   In caso di richieste successive (anche postback), l’albero viene ri-allocato
+
+## Templating
+Facilità di **estensione e riuso** come caratteristica generale di JSF!<br>
+**Templating**: utilizzo di pagine come base (o template ) per altre pagine, anche mantenendo look&feel uniforme. Ad esempio, tag:
+-   `ui:insert` – parte di un template in cui potrà essere inserito
+contenuto (tag di amplissimo utilizzo)
+-   `ui:component` – definisce un componente creato e aggiunto
+all’albero dei componenti
+-   `ui:define` – definisce contenuto con cui pagina “riempie” template
+(vedi insert)
+-   `ui:include` – incapsula e riutilizza contenuto per pagine multiple
+-   `ui:param` – per passare parametri a file incluso
